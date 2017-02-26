@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="PWMDemo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -19,8 +19,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="60"/>
+        <TopLine Value="76"/>
         <CursorPos X="51" Y="115"/>
         <UsageCount Value="30"/>
         <Loaded Value="True"/>
@@ -28,7 +27,6 @@
       </Unit1>
       <Unit2>
         <Filename Value="../lib/wiringpi/wiringpi.pas"/>
-        <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="34" Y="135"/>
         <UsageCount Value="23"/>
@@ -41,6 +39,14 @@
         <CursorPos X="-1" Y="-1"/>
         <UsageCount Value="25"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="../mylib/wiringpi.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="47"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
     </Units>
     <JumpHistory Count="27" HistoryIndex="26">
       <Position1>
