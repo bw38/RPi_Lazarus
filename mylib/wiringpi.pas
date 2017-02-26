@@ -36,24 +36,24 @@ interface
 type  //redefinition of wirinPi-Const - s. wirinPi.h
 
 
-	//set in tPinMode  => int 0..6
-	tPinMode = (pmINPUT, pmOUTPUT, pmPWM_OUTPUT, pmGPIO_CLOCK, pmSOFT_PWM_OUTPUT,
-							pmSOFT_TONE_OUTPUT, pmPWM_TONE_OUTPUT);
+//set in tPinMode  => int 0..6
+tPinMode = (pmINPUT, pmOUTPUT, pmPWM_OUTPUT, pmGPIO_CLOCK, pmSOFT_PWM_OUTPUT,
+            pmSOFT_TONE_OUTPUT, pmPWM_TONE_OUTPUT);
 
-	//digitalRead, digitalWrite => int 0..1
-	tLevel =(levLOW, levHIGH);
+//digitalRead, digitalWrite => int 0..1
+tLevel =(levLOW, levHIGH);
 
-	//set in pullUpDownControl => int 0..2
-	tPull = (pullOFF,	pullDOWN,	pullUP);
+//set in pullUpDownControl => int 0..2
+tPull = (pullOFF,	pullDOWN,	pullUP);
 
-  //set edge for Interrupt => int 0..3
-  tIntMode = (intSetup, intFalling, intRising, intBoth);
+//set edge for Interrupt => int 0..3
+tIntMode = (intSetup, intFalling, intRising, intBoth);
 
-	//set PWM => int 0..1
-  tPWMMode = (pwmMS, pwmBAL);
+//set PWM => int 0..1
+tPWMMode = (pwmMS, pwmBAL);
 
-  //set in pinModeAlt => int 0..7  -> FSEL9 0-7
-	tAltMode = (amIN, amOUT, amALT5, amALT4, amALT0, amALT1, amALT2, amALT3);
+//set in pinModeAlt => int 0..7  -> FSEL9 0-7
+tAltMode = (amIN, amOUT, amALT5, amALT4, amALT0, amALT1, amALT2, amALT3);
 
 //-----------------------------------------------------------------------------
 
