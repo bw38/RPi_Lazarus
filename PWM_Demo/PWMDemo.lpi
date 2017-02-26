@@ -58,7 +58,7 @@
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <Libraries Value="/usr/lib/gcc/arm-linux-gnueabihf/4.9/"/>
-      <OtherUnitFiles Value="../lib/wiringpi"/>
+      <OtherUnitFiles Value="../mylib/wiringpi"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
