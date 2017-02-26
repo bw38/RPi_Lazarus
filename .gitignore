@@ -1,0 +1,5 @@
+# Lazarus/FPC
+# zu ignorierende Dateien / Verzecinisse 
+*.bak
+lib/
+
