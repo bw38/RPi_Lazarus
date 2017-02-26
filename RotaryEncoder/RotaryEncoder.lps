@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <Version Value="9"/>
+    <BuildModes Active="Default"/>
+    <Units Count="10">
+      <Unit0>
+        <Filename Value="RotaryEncoder.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="20"/>
+        <UsageCount Value="86"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <TopLine Value="12"/>
+        <CursorPos X="14" Y="52"/>
+        <UsageCount Value="86"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="rotary.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="57"/>
+        <CursorPos X="31" Y="57"/>
+        <UsageCount Value="86"/>
+        <Loaded Value="True"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="../lib/wiringpi/wiringpi.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="121"/>
+        <CursorPos X="43" Y="153"/>
+        <UsageCount Value="40"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../Development/FreePascal/lazarus/lcl/include/application.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="1047"/>
+        <CursorPos Y="1067"/>
+        <UsageCount Value="6"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="/Development/FreePascal/lazarus/lcl/graphics.pp"/>
+        <UnitName Value="Graphics"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="257"/>
+        <CursorPos X="3" Y="277"/>
+        <UsageCount Value="15"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../../Development/FreePascal/lazarus/lcl/include/wincontrol.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="7333"/>
+        <CursorPos Y="7353"/>
+        <UsageCount Value="8"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../Development/FreePascal/lazarus/lcl/include/customform.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="618"/>
+        <CursorPos Y="638"/>
+        <UsageCount Value="10"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../Development/FreePascal/lazarus/lcl/include/control.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2104"/>
+        <CursorPos Y="2124"/>
+        <UsageCount Value="10"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../mylib/wiringpi.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit9>
+    </Units>
+    <OtherDefines Count="1">
+      <Define0 Value="UseCThreads"/>
+    </OtherDefines>
+    <JumpHistory Count="25" HistoryIndex="24">
+      <Position1>
+        <Filename Value="main.pas"/>
+        <Caret Line="59" Column="2" TopLine="34"/>
+      </Position1>
+      <Position2>
+        <Filename Value="main.pas"/>
+        <Caret Line="92" TopLine="61"/>
+      </Position2>
+      <Position3>
+        <Filename Value="main.pas"/>
+        <Caret Line="91" TopLine="60"/>
+      </Position3>
+      <Position4>
+        <Filename Value="main.pas"/>
+        <Caret Line="90" TopLine="59"/>
+      </Position4>
+      <Position5>
+        <Filename Value="main.pas"/>
+        <Caret Line="89" TopLine="58"/>
+      </Position5>
+      <Position6>
+        <Filename Value="main.pas"/>
+        <Caret Line="88" TopLine="57"/>
+      </Position6>
+      <Position7>
+        <Filename Value="main.pas"/>
+        <Caret Line="94" TopLine="58"/>
+      </Position7>
+      <Position8>
+        <Filename Value="main.pas"/>
+        <Caret Line="85" TopLine="50"/>
+      </Position8>
+      <Position9>
+        <Filename Value="main.pas"/>
+        <Caret Line="65" Column="19" TopLine="39"/>
+      </Position9>
+      <Position10>
+        <Filename Value="main.pas"/>
+        <Caret Line="66" Column="19" TopLine="40"/>
+      </Position10>
+      <Position11>
+        <Filename Value="main.pas"/>
+        <Caret Line="74" Column="17" TopLine="48"/>
+      </Position11>
+      <Position12>
+        <Filename Value="main.pas"/>
+        <Caret Line="20" Column="41" TopLine="2"/>
+      </Position12>
+      <Position13>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="195" TopLine="165"/>
+      </Position13>
+      <Position14>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="196" TopLine="165"/>
+      </Position14>
+      <Position15>
+        <Filename Value="main.pas"/>
+        <Caret Line="71" TopLine="43"/>
+      </Position15>
+      <Position16>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="195" TopLine="165"/>
+      </Position16>
+      <Position17>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="196" TopLine="165"/>
+      </Position17>
+      <Position18>
+        <Filename Value="main.pas"/>
+        <Caret Line="72" TopLine="43"/>
+      </Position18>
+      <Position19>
+        <Filename Value="main.pas"/>
+        <Caret Line="78" TopLine="56"/>
+      </Position19>
+      <Position20>
+        <Filename Value="main.pas"/>
+        <Caret Line="68" TopLine="50"/>
+      </Position20>
+      <Position21>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="200" Column="3" TopLine="181"/>
+      </Position21>
+      <Position22>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="198" Column="28" TopLine="179"/>
+      </Position22>
+      <Position23>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="247" Column="13" TopLine="223"/>
+      </Position23>
+      <Position24>
+        <Filename Value="rotary.pas"/>
+        <Caret Line="57" Column="5" TopLine="33"/>
+      </Position24>
+      <Position25>
+        <Filename Value="main.pas"/>
+        <Caret Line="69" TopLine="55"/>
+      </Position25>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

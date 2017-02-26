@@ -19,6 +19,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="76"/>
         <CursorPos X="51" Y="115"/>
         <UsageCount Value="30"/>
@@ -41,7 +42,6 @@
       </Unit3>
       <Unit4>
         <Filename Value="../mylib/wiringpi.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="47"/>
         <UsageCount Value="10"/>
