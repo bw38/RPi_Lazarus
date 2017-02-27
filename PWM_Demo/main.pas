@@ -60,9 +60,11 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 var uid: longint;
 begin
+  //test for root
   uid:= fpGetUid();
   label4.Caption := 'User-ID: ' + IntToStr(uid);
   if uid <> 0 then btHWPWM.Enabled := false;
+  
   //Setup in WiringPi-Numbering
   wiringPiSetup();
 end;
