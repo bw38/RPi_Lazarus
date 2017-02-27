@@ -20,8 +20,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="82"/>
-        <CursorPos Y="102"/>
+        <TopLine Value="87"/>
+        <CursorPos X="8" Y="123"/>
         <UsageCount Value="35"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -49,7 +49,7 @@
       <Unit5>
         <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="104"/>
+        <TopLine Value="110"/>
         <CursorPos X="127" Y="128"/>
         <UsageCount Value="12"/>
         <Loaded Value="True"/>

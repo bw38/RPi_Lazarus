@@ -3,13 +3,13 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="10">
+    <Units Count="11">
       <Unit0>
         <Filename Value="RotaryEncoder.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="20"/>
-        <UsageCount Value="86"/>
+        <UsageCount Value="96"/>
       </Unit0>
       <Unit1>
         <Filename Value="main.pas"/>
@@ -17,20 +17,20 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="13"/>
+        <TopLine Value="37"/>
         <CursorPos X="14" Y="52"/>
-        <UsageCount Value="86"/>
+        <UsageCount Value="96"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="rotary.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="57"/>
-        <CursorPos X="31" Y="57"/>
-        <UsageCount Value="86"/>
+        <TopLine Value="84"/>
+        <CursorPos Y="108"/>
+        <UsageCount Value="96"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -38,14 +38,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="121"/>
         <CursorPos X="43" Y="153"/>
-        <UsageCount Value="40"/>
+        <UsageCount Value="39"/>
       </Unit3>
       <Unit4>
         <Filename Value="../../Development/FreePascal/lazarus/lcl/include/application.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="1047"/>
         <CursorPos Y="1067"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit4>
       <Unit5>
         <Filename Value="/Development/FreePascal/lazarus/lcl/graphics.pp"/>
@@ -53,34 +53,42 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="257"/>
         <CursorPos X="3" Y="277"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="14"/>
       </Unit5>
       <Unit6>
         <Filename Value="../../Development/FreePascal/lazarus/lcl/include/wincontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="7333"/>
         <CursorPos Y="7353"/>
-        <UsageCount Value="8"/>
+        <UsageCount Value="7"/>
       </Unit6>
       <Unit7>
         <Filename Value="../../Development/FreePascal/lazarus/lcl/include/customform.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="618"/>
         <CursorPos Y="638"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit7>
       <Unit8>
         <Filename Value="../../Development/FreePascal/lazarus/lcl/include/control.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2104"/>
         <CursorPos Y="2124"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit8>
       <Unit9>
         <Filename Value="../mylib/wiringpi.pas"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit9>
+      <Unit10>
+        <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="28"/>
+        <CursorPos X="120" Y="49"/>
+        <UsageCount Value="15"/>
+        <Loaded Value="True"/>
+      </Unit10>
     </Units>
     <OtherDefines Count="1">
       <Define0 Value="UseCThreads"/>
