@@ -17,6 +17,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="37"/>
         <CursorPos X="14" Y="52"/>
         <UsageCount Value="96"/>
@@ -26,7 +27,6 @@
       <Unit2>
         <Filename Value="rotary.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <TopLine Value="84"/>
         <CursorPos Y="108"/>

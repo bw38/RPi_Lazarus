@@ -53,7 +53,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="ISR_Demo"/>
+      <Filename Value="$(HOME)/Lazarus/ISR_Demo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
