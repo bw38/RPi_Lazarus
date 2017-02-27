@@ -78,6 +78,7 @@ end;
 
 
 //PWM --------------------------------------------------------------------------
+//HW - PWM
 
 procedure TForm1.btHwPwmClick(Sender: TObject);
 begin
@@ -93,10 +94,12 @@ end;
 
 
 //------------------------------------------------------------------------------
+//SW - PWM
 
 procedure TForm1.btSwPwmClick(Sender: TObject);
+var fres: longint;
 begin
-  softPwmCreate(edSwPin.Value, edSwValue.Value,  edSwRange.Value);
+  fres:= softPwmCreate(edSwPin.Value, edSwValue.Value,  edSwRange.Value);
 end;
 
 procedure TForm1.btSwPwmValueClick(Sender: TObject);

@@ -146,7 +146,7 @@ object Form1: TForm1
     Height = 33
     Top = 216
     Width = 116
-    MaxValue = 2147483647
+    MaxValue = 99
     TabOrder = 4
     Value = 4
   end
@@ -202,7 +202,7 @@ object Form1: TForm1
     Height = 33
     Top = 368
     Width = 116
-    MaxValue = 29
+    MaxValue = 99
     TabOrder = 7
     Value = 5
   end

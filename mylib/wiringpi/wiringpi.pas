@@ -120,8 +120,8 @@ procedure pwmWrite(pin: longint; value: longint); cdecl; external;
 function softPwmCreate(pin: longint; initialValue: longint; pwmRange: longint): longint; cdecl; external;
 procedure softPwmWrite(pin: longint; value: longint); cdecl; external;
 {
- value =    x * 100µs
- pwmRange = x * 100µs
+ t(mark)    = value * 100µs
+ t(Periode) = range * 100µs
  -> one Thread per pin
  -> only one create per pin on runtime, range not changeable
 }
