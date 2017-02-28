@@ -11,6 +11,6 @@ Lib wiringpi in ~/RPi_Lazarus/mylib/wiringpi/wiringpi.pas<br>
 Executable to ~/Lazarus.
 
 vy73 Joerg<br>
-Dl7VMD
+DL7VMD
 
 [Homepage](https://www.bw38.de)
