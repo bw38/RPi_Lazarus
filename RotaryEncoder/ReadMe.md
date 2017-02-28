@@ -9,3 +9,8 @@ Encoder is ALPS 11B.
 Sourcecode in ~/RPi_Lazarus/RotaryEncoder.<br>
 Lib wiringpi in ~/RPi_Lazarus/mylib/wiringpi/wiringpi.pas<br>
 Executable to ~/Lazarus.
+
+vy73 Joerg<br>
+Dl7VMD
+
+[Homepage](https://www.bw38.de)
