@@ -1,8 +1,8 @@
 unit main;
 
 {******************************************************************************
-Demo for using LazSerial on Raspberry fpr USB-Serial-Adapter
-Doesn't work with internal UAT0 / UART1
+Demo for using LazSerial on Raspberry for USB-Serial-Adapter
+Doesn't work with internal UART0 / UART1
 
 Joerg DL7VMD
 *******************************************************************************}
