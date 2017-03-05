@@ -1,10 +1,10 @@
 object Form1: TForm1
   Left = 0
-  Height = 342
+  Height = 390
   Top = 0
   Width = 587
   Caption = 'Form1'
-  ClientHeight = 342
+  ClientHeight = 390
   ClientWidth = 587
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -44,5 +44,15 @@ object Form1: TForm1
     Caption = 'Tx'
     Enabled = False
     OnClick = btTxLineClick
+  end
+  object btSetRTS: TSpeedButton
+    Left = 176
+    Height = 30
+    Top = 296
+    Width = 72
+    AllowAllUp = True
+    Caption = 'RTS'
+    GroupIndex = 101
+    OnClick = btSetRTSClick
   end
 end

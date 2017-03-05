@@ -1,12 +1,20 @@
 unit main;
 
+{******************************************************************************
+Demo for using LazSerial on Raspberry fpr USB-Serial-Adapter
+Doesn't work with internal UAT0 / UART1
+
+Joerg DL7VMD
+*******************************************************************************}
+
+
 {$mode delphi}
 
 interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Buttons,
-  StdCtrls, LazSerial, synaser, wiringpi;
+  StdCtrls, LazSerial, synaser;
 
 
 
@@ -19,6 +27,8 @@ type
     Edit1: TEdit;
     Memo1: TMemo;
     btTxLine: TSpeedButton;
+    btSetRTS: TSpeedButton;
+    procedure btSetRTSClick(Sender: TObject);
     procedure btSetupClick(Sender: TObject);
     procedure btTxLineClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -29,6 +39,7 @@ type
 
     procedure SerialRxData(Sender: TObject);
     procedure StatusChanged(Sender: TObject; Reason: THookSerialReason; const Value: string);
+    procedure OpenDevice();
   public
 
   end;
@@ -42,28 +53,13 @@ implementation
 
 { TForm1 }
 
-//{$DEFINE USBAdapter}
-//{$DEFINE UART0}
-{$DEFINE UART1}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   serial:= TLazSerial.Create(Self);
-  {$IFDEF USBAdapter}
+
   //USB-Serial-Adapter 115200 8N1
   serial.Device := '/dev/ttyUSB0';
-  {$ENDIF}
-  {$IFDEF UART0}
-
-  {$ENDIF}
-  {$IFDEF UART1}
-  //UART1 115200 8N1  mini-UART
-  //Enable serialport -> 	sudo raspi-config (RxD, TxD is set to Alt5)
-  //set Group 				->	sudo chgrp dialout /dev/serial0
-  //set permissions 	-> 	sudo chmod 660 /dev/serial0
-  serial.Device := '/dev/ttyS0';   //or '/dev/ttyS0'
-  {$ENDIF}
-
 
   serial.BaudRate := br115200;    //typedef s. lazserial.pas
   serial.DataBits := db8bits;
@@ -73,12 +69,8 @@ begin
   serial.OnRxData := SerialRxData;
   serial.OnStatus := StatusChanged;
   serial.RcvLineCRLF := false;   //true -> wait Rx for crlf and cut it
-  try
-  	serial.Open;
-  except
-    Showmessage('Could not open: ' + serial.Device);
-  end;
 
+  OpenDevice();
 end;
 
 
@@ -86,6 +78,15 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
 	serial.Free;
+end;
+
+procedure TForm1.OpenDevice();
+begin
+  try
+  	serial.Open;
+  except
+    Showmessage('Could not open: ' + serial.Device);
+  end;
 end;
 
 procedure TForm1.SerialRxData(Sender: TObject);
@@ -122,13 +123,21 @@ procedure TForm1.btSetupClick(Sender: TObject);
 begin
   if serial.Active then serial.Close;
   serial.ShowSetupDialog;
-  serial.open;
+  OpenDevice();
 end;
+
 
 procedure TForm1.btTxLineClick(Sender: TObject);
 begin
   serial.WriteData(edit1.Text + #13#10);
 end;
+
+
+procedure TForm1.btSetRTSClick(Sender: TObject);
+begin
+	serial.SetRTS(btSetRTS.Down);
+end;
+
 
 end.
 
