@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="serial_demo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -49,17 +49,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="LazSerial"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="$(HOME/Lazarus/serial_demo"/>
+      <Filename Value="$(HOME)/Lazarus/serial_demo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <Libraries Value="/usr/lib/gcc/arm-linux-gnueabihf/4.9/"/>
-      <OtherUnitFiles Value="../mylib/LazSerial"/>
+      <OtherUnitFiles Value="../mylib/LazSerial;../mylib/wiringpi"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

@@ -2,14 +2,13 @@ program rs232_demo;
 
 {$mode delphi}
 
-{$DEFINE UseCThreads}  //add for multi-Threading  !!!
-
 uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads, cmem,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main;
+  Forms, main, wiringpi
+  { you can add units after this };
 
 {$R *.res}
 

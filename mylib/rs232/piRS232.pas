@@ -12,7 +12,7 @@ interface
 uses
   Classes, SysUtils, termio, wiringpi, BaseUnix;
 
-// some more baudrates in wiringSerial.c
+
 type
   TBaudRate=
     (B50, B75, B110, B300, B600, B1200, B2400, B4800,
@@ -87,6 +87,9 @@ implementation
 constructor TRS232.create();
 begin
   inherited create(false); 	//do not start thread immediatly
+
+  wiringPiSetup();
+
   Ffd:= -1;
   //Set default PArameters for UART0 115200bd 8N1
   //change before open
@@ -97,7 +100,7 @@ begin
   Stopbits:= sbOne;
   FlowControl:= fcNone;
 
-  RxTimeout:= 100;	//Timeout 10sec
+  RxTimeout:= 10;	//Timeout 1.0sec
   self.FreeOnTerminate := true;
 end;
 
@@ -126,8 +129,17 @@ begin
   	pinModeAlt(15, amAlt0); 	//TxD0
   	pinModeAlt(16, amAlt0); 	//RxD0
     if FlowControl = fcHardware then begin
-      pinModeAlt(0, amAlt3);  //RTS0
+      pinModeAlt(0,  amAlt3); //RTS0
       pinModeAlt(27, amAlt3);	//CTS0
+      pullUpDnControl(27, pullUP);
+    end;
+  end else if pos('ttyS0', tn) > 0 then begin //UART1 map
+    //map Tx/Rx to Alt5
+  	pinModeAlt(15, amAlt5); 	//TxD1
+  	pinModeAlt(16, amAlt5); 	//RxD1
+    if FlowControl = fcHardware then begin
+      pinModeAlt(0,  amAlt5); //RTS1
+      pinModeAlt(27, amAlt5);	//CTS1
       pullUpDnControl(27, pullUP);
     end;
   end;
@@ -204,17 +216,11 @@ end;
 //write up to 4k data, more will block until written
 function TRS232.WriteData(s: string): integer;
 begin
-  if fd > 0 then
-    // wiringPi-Procedure
-    // serialPuts(fd, pchar(s));
-    // result:= 0;
-
-    //or direct write with result
-  	result:= fpWrite(fd, pchar(s), length(s));
+  if fd > 0 then result:= fpWrite(fd, pchar(s), length(s));
 end;
 
 
-//Set Status (Altmode 3 GPIO17)
+//Set Status (BCM.17)
 // true =>  RTSlow
 // false => RTShigh
 procedure TRS232.SetRTS(State: Boolean);
@@ -225,7 +231,7 @@ begin
     else fpioctl(fd, TIOCMBIC, @RTS);
 end;
 
-//Get Status (Altmode3 GPIO16)
+//Get Status (BCM.16)
 // CTSlow  => true;
 // CTShigh => false;
 function TRS232.GetCTS(): Boolean;

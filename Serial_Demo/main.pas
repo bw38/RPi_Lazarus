@@ -1,8 +1,10 @@
 unit main;
 
 {******************************************************************************
-Demo for using LazSerial on Raspberry for USB-Serial-Adapter
-Doesn't work with internal UART0 / UART1
+Demo for using LazSerial on Raspberry for USB-Serial-Adapter / (UART0 /UART1)
+Restrictions for internal UART0/1
+ - Flowcontrol doesn't work
+ - Configuration P1.8 / P1.10 before program starts
 
 Joerg DL7VMD
 *******************************************************************************}
@@ -65,14 +67,14 @@ begin
   serial.DataBits := db8bits;
   serial.Parity := pNone;
   serial.StopBits := sbOne;
-  serial.FlowControl := fcNone;
+  //serial.FlowControl := fcNone;
+  serial.FlowControl := fcHardware;
   serial.OnRxData := SerialRxData;
   serial.OnStatus := StatusChanged;
   serial.RcvLineCRLF := false;   //true -> wait Rx for crlf and cut it
 
   OpenDevice();
 end;
-
 
 
 procedure TForm1.FormDestroy(Sender: TObject);

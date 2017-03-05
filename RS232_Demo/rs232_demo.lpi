@@ -18,10 +18,6 @@
     </VersionInfo>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
-      <SharedMatrixOptions Count="2">
-        <Item1 ID="335594221140" Targets="" Modes="Default"/>
-        <Item2 ID="456592306067" Targets="" Modes="Default"/>
-      </SharedMatrixOptions>
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
@@ -49,11 +45,11 @@
         <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
-        <Filename Value="../mylib/rs232/piRS232.pas"/>
+        <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
+        <Filename Value="../mylib/rs232/piRS232.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
     </Units>
@@ -61,12 +57,12 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="/home/pi/Lazarus/rs232_demo"/>
+      <Filename Value="$(HOME)/Lazarus/rs232_demo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
       <Libraries Value="/usr/lib/gcc/arm-linux-gnueabihf/4.9/"/>
-      <OtherUnitFiles Value="../lib/wiringpi;../lib/LazSerial;../mylib/rs232;../mylib/wiringpi"/>
+      <OtherUnitFiles Value="../mylib/rs232;../mylib/wiringpi"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>
@@ -76,9 +72,12 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CustomOptions Value="-dUseCThreads"/>
+    </Other>
   </CompilerOptions>
   <Debugging>
-    <Exceptions Count="4">
+    <Exceptions Count="3">
       <Item1>
         <Name Value="EAbort"/>
       </Item1>
@@ -88,10 +87,6 @@
       <Item3>
         <Name Value="EFOpenError"/>
       </Item3>
-      <Item4>
-        <Name Value="RunError(211)"/>
-        <Enabled Value="False"/>
-      </Item4>
     </Exceptions>
   </Debugging>
 </CONFIG>

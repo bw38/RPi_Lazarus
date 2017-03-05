@@ -9,6 +9,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poDesktopCenter
+  LCLVersion = '1.7'
   Visible = False
   object btSetup: TSpeedButton
     Left = 16
