@@ -1,0 +1,120 @@
+object Form1: TForm1
+  Left = 0
+  Height = 512
+  Top = 0
+  Width = 584
+  Caption = 'Form1'
+  ClientHeight = 512
+  ClientWidth = 584
+  OnClose = FormClose
+  OnCreate = FormCreate
+  Position = poDesktopCenter
+  Visible = False
+  object Memo1: TMemo
+    Left = 16
+    Height = 197
+    Top = 19
+    Width = 344
+    Lines.Strings = (
+      ''
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 0
+  end
+  object btRs232Open: TSpeedButton
+    Left = 387
+    Height = 38
+    Top = 152
+    Width = 64
+    Caption = 'Open'
+    OnClick = btRs232OpenClick
+  end
+  object edTxLine: TEdit
+    Left = 16
+    Height = 33
+    Top = 320
+    Width = 344
+    TabOrder = 1
+  end
+  object edRxLine: TEdit
+    Left = 16
+    Height = 33
+    Top = 224
+    Width = 344
+    ReadOnly = True
+    TabOrder = 2
+  end
+  object btSend: TButton
+    Left = 384
+    Height = 25
+    Top = 200
+    Width = 67
+    Caption = 'Senden'
+    OnClick = btSendClick
+    TabOrder = 3
+  end
+  object btStopTx: TSpeedButton
+    Left = 387
+    Height = 40
+    Top = 384
+    Width = 80
+    AllowAllUp = True
+    Caption = 'Stop Tx'
+    Font.Height = -11
+    Font.Name = 'Sans'
+    GroupIndex = 101
+    OnClick = btStopTxClick
+    ParentFont = False
+  end
+  object btOpenRS232: TSpeedButton
+    Left = 387
+    Height = 36
+    Top = 288
+    Width = 80
+    Caption = 'OpenRS232'
+    Font.Height = -11
+    Font.Name = 'Sans'
+    OnClick = btOpenRS232Click
+    ParentFont = False
+  end
+  object btTxRs232: TSpeedButton
+    Left = 387
+    Height = 38
+    Top = 336
+    Width = 79
+    Caption = 'TxRs232'
+    Font.Height = -11
+    Font.Name = 'Sans'
+    OnClick = btTxRs232Click
+    ParentFont = False
+  end
+  object btSetRTS: TSpeedButton
+    Left = 68
+    Height = 46
+    Top = 410
+    Width = 87
+    AllowAllUp = True
+    Caption = 'Set RTS'
+    GroupIndex = 102
+    OnClick = btSetRTSClick
+  end
+  object btCloseRS232: TSpeedButton
+    Left = 480
+    Height = 36
+    Top = 288
+    Width = 80
+    Caption = 'CloseRS232'
+    Font.Height = -11
+    Font.Name = 'Sans'
+    OnClick = btCloseRS232Click
+    ParentFont = False
+  end
+  object btGetCTS: TSpeedButton
+    Left = 168
+    Height = 46
+    Top = 410
+    Width = 88
+    Caption = 'Get CTS'
+    OnClick = btGetCTSClick
+  end
+end
