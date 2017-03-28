@@ -1,4 +1,4 @@
-unit piRS232;
+unit piSerial;
 
 {
 http://wiki.freepascal.org/Multithreaded_Application_Tutorial/de
@@ -120,10 +120,12 @@ var bd, res: integer;
     tn: string;
 begin
   bd:= ConstsBaud[Baudrate];
+
   Ffd:= serialOpen(pchar(Device), bd);
+  tn:= ttyName(fd);
 
   //Map pins for UART0  -> for others map by yourself  !!!
-  tn:= ttyName(fd);
+
   if pos('ttyAMA0', tn) > 0 then begin //UART0 map
     //map Tx/Rx to Alt0
   	pinModeAlt(15, amAlt0); 	//TxD0
@@ -135,10 +137,14 @@ begin
     end;
   end else if pos('ttyS0', tn) > 0 then begin //UART1 map
     //map Tx/Rx to Alt5
+    pinMode(15, pmOutput);
   	pinModeAlt(15, amAlt5); 	//TxD1
+    pinMode(16, pmInput);
   	pinModeAlt(16, amAlt5); 	//RxD1
     if FlowControl = fcHardware then begin
+      pinMode(0, pmOutput);
       pinModeAlt(0,  amAlt5); //RTS1
+      pinMode(27, pmInput);
       pinModeAlt(27, amAlt5);	//CTS1
       pullUpDnControl(27, pullUP);
     end;

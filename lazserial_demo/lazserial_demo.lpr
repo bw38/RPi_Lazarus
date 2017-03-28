@@ -1,4 +1,4 @@
-program rs232_demo;
+program lazserial_demo;
 
 {$mode delphi}
 

@@ -5,7 +5,7 @@
     <BuildModes Active="Default"/>
     <Units Count="6">
       <Unit0>
-        <Filename Value="serial_demo.lpr"/>
+        <Filename Value="lazserial_demo.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="61" Y="14"/>

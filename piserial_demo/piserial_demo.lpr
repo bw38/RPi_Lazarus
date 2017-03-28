@@ -1,4 +1,4 @@
-program serial_demo;
+program piserial_demo;
 
 {$mode delphi}
 

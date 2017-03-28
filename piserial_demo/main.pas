@@ -22,7 +22,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Buttons,
-  StdCtrls, piRS232;
+  StdCtrls, piSerial;
 
 
 
