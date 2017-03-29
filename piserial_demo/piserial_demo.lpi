@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="3">
       <Unit0>
         <Filename Value="piserial_demo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -48,11 +48,6 @@
         <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
-      <Unit3>
-        <Filename Value="../mylib/rs232/piserial.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="piSerial"/>
-      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
