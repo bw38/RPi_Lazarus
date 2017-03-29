@@ -138,9 +138,9 @@ begin
   end else if pos('ttyS0', tn) > 0 then begin //UART1 map
     //map Tx/Rx to Alt5
     pinMode(15, pmOutput);
-  	pinModeAlt(15, amAlt5); 	//TxD1
+    pinModeAlt(15, amAlt5); 	//TxD1
     pinMode(16, pmInput);
-  	pinModeAlt(16, amAlt5); 	//RxD1
+    pinModeAlt(16, amAlt5); 	//RxD1
     if FlowControl = fcHardware then begin
       pinMode(0, pmOutput);
       pinModeAlt(0,  amAlt5); //RTS1
@@ -157,15 +157,15 @@ begin
   case DataBits of
     db5: tios.c_cflag:=tios.c_cflag or CS5;
     db6: tios.c_cflag:=tios.c_cflag or CS6;
-  	db7: tios.c_cflag:=tios.c_cflag or CS7;
+    db7: tios.c_cflag:=tios.c_cflag or CS7;
     db8: tios.c_cflag:=tios.c_cflag or CS8;
   end;
 
   //Parity not available on UART1 (mini-UART)
   tios.c_cflag:= tios.c_cflag and not PARENB;		//Parity off
   case Parity of  //default none Parity
-  	paOdd:  tios.c_cflag:= tios.c_cflag or PARENB or PARODD;  // Enable + odd parity
-  	paEven: tios.c_cflag:= tios.c_cflag or PARENB;  // Enable + not odd (even) parity
+    paOdd:  tios.c_cflag:= tios.c_cflag or PARENB or PARODD;  // Enable + odd parity
+    paEven: tios.c_cflag:= tios.c_cflag or PARENB;  // Enable + not odd (even) parity
   end;
 
   //One or Two Stopbits (only one for UART1)
@@ -175,9 +175,8 @@ begin
 
   //RTS - CTS - Flowcontrol
   tios.c_cflag:= tios.c_cflag and not CRTSCTS;  //fcNone
-  if FlowControl = fcHardware then begin
+  if FlowControl = fcHardware then 
     tios.c_cflag:= tios.c_cflag or CRTSCTS;
-  end;
 
   if tcsetattr(fd, TCSANOW, tios) <> 0 then begin  //set immidiately
     result:= -1;
@@ -185,7 +184,7 @@ begin
   end;
   Start;						//Start Reading - Thread
   SuspendTx(false); //Don't block Tx on Start
-	result:= fd;      //return File-Descrictor
+  result:= fd;      //return File-Descrictor
 end;
 
 //true blocks Tx until false (independet of Flowcontrol)
@@ -202,11 +201,11 @@ begin
     rxLine:= '';
     x:= serialGetchar (fd);  //Blocked for Rx-Timeout div 10
     if (x >= 0) then begin   //-1 for Timeout
-   	  rxLine:= char(x);
+      rxLine:= char(x);
       //furthermore characters ?
       while serialDataAvail(fd) > 0 do rxLine:= rxLine + char(serialGetchar (fd));
       //notify Mainthread
-    	Synchronize(@DataReceived);
+      Synchronize(@DataReceived);
     end;
   end;
 end;
