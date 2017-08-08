@@ -16,7 +16,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, Buttons,
-  StdCtrls, LazSerial, synaser;
+  StdCtrls, LazSerial, synaser, wiringPi;
 
 
 
@@ -61,7 +61,9 @@ begin
   serial:= TLazSerial.Create(Self);
 
   //USB-Serial-Adapter 115200 8N1
-  serial.Device := '/dev/ttyUSB0';
+  //serial.Device := '/dev/ttyUSB0';
+  serial.Device := '/dev/ttyAMA0';
+  wiringPiSetup();
 
   serial.BaudRate := br115200;    //typedef s. lazserial.pas
   serial.DataBits := db8bits;

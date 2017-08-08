@@ -124,29 +124,17 @@ begin
   Ffd:= serialOpen(pchar(Device), bd);
   tn:= ttyName(fd);
 
-  //Map pins for UART0  -> for others map by yourself  !!!
+  //UART has to be activated und Pin-mapped outside !
 
   if pos('ttyAMA0', tn) > 0 then begin //UART0 map
-    //map Tx/Rx to Alt0
-  	pinModeAlt(15, amAlt0); 	//TxD0
-  	pinModeAlt(16, amAlt0); 	//RxD0
     if FlowControl = fcHardware then begin
       pinModeAlt(0,  amAlt3); //RTS0
       pinModeAlt(27, amAlt3);	//CTS0
-      pullUpDnControl(27, pullUP);
     end;
   end else if pos('ttyS0', tn) > 0 then begin //UART1 map
-    //map Tx/Rx to Alt5
-    pinMode(15, pmOutput);
-    pinModeAlt(15, amAlt5); 	//TxD1
-    pinMode(16, pmInput);
-    pinModeAlt(16, amAlt5); 	//RxD1
     if FlowControl = fcHardware then begin
-      pinMode(0, pmOutput);
       pinModeAlt(0,  amAlt5); //RTS1
-      pinMode(27, pmInput);
       pinModeAlt(27, amAlt5);	//CTS1
-      pullUpDnControl(27, pullUP);
     end;
   end;
 

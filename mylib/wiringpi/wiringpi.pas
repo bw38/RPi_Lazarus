@@ -81,7 +81,7 @@ function  digitalRead(pin: longint): tLevel; cdecl; external;
 //undocumented GPIO - functions ------------------------------------------------
 
 procedure pinModeAlt (pin: longint; mode: tAltMode); cdecl; external;
-function  getAlt(pi: longint): longint; cdecl; external;
+function  getAlt(pin: longint): tAltMode; cdecl; external;
 
 
 //Interrupt and Thread ---------------------------------------------------------
