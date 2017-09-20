@@ -16,11 +16,14 @@ uses
 type
   TBaudRate=
     (B50, B75, B110, B300, B600, B1200, B2400, B4800,
-     B9600, B19200, B38400, B57600, B115200, B230400);
+     B9600, B19200, B38400, B57600, B115200, B230400,
+     B460800, B921600);
 const
   ConstsBaud: array[TBaudRate] of integer=
     ( 50,  75,  110,  300,  600,  1200,  2400,  4800,
-      9600,  19200,  38400,  57600,  115200,  230400);
+      9600,  19200,  38400,  57600,  115200,  230400,
+      460800, 921600);
+  //weitere Baudrates -> s. wiringSerial.c
 
 type
   TDataBits=(db8, db7, db6, db5);   //db6 & db5 doesn't work  on UART1
@@ -50,6 +53,7 @@ TRS232 = class(TThread)
 
     FFlowControl: tFlowControl;
     FRxTimeout : integer;
+    FuseSynchronize: boolean; //switch off in Consoleprograms
 
     rxLine: string;
     procedure DataReceived;
@@ -70,6 +74,7 @@ TRS232 = class(TThread)
     property RxTimeout: integer read FRxTimeout write FRxTimeout;	//x * 0.1s
 
     property onDataRcvd: TDataReceived read FOnDataReceived write FOnDataReceived;
+    property useSynchronize: boolean write FuseSynchronize;
 
     constructor create();
     destructor Destroy; override;
@@ -170,6 +175,7 @@ begin
     result:= -1;
     exit;
   end;
+  FuseSynchronize:= true; //switch off only in console-Programs
   Start;						//Start Reading - Thread
   SuspendTx(false); //Don't block Tx on Start
   result:= fd;      //return File-Descrictor
@@ -193,7 +199,9 @@ begin
       //furthermore characters ?
       while serialDataAvail(fd) > 0 do rxLine:= rxLine + char(serialGetchar (fd));
       //notify Mainthread
-      Synchronize(@DataReceived);
+      if FuseSynchronize
+        then synchronize(@DataReceived)
+      	else @DataReceived;
     end;
   end;
 end;
