@@ -7,7 +7,7 @@ uses
   cthreads, cmem,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  crt, piSerial, typedef, data;
+  crt, piSerial, typedef, data, debug;
 
   { tIogGateway }
 
@@ -18,6 +18,7 @@ type
     rxLine: AnsiString;
     rxPL: tRxPayload;
     txPL: tTxPayload;
+    lSensors: TSensorList;	//Wurzel der Datensätze
 
     procedure OpenRS232();
     procedure RxData(s: AnsiString);
@@ -25,7 +26,6 @@ type
     procedure terminatedRS232(Sender: tObject);
 
     procedure DoRun; override;
-
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -63,8 +63,10 @@ end;
 
 //Data received
 procedure tIogGateway.RxData(s: AnsiString);
-var	i, n, sz: integer;
+var	i, n, sz, ix: integer;
     rxCRC: tCRC;
+    pl: tPayLoad;
+    ds: dword;
 
 begin
   for i:= 1 to length(s) do begin
@@ -90,48 +92,36 @@ begin
 
           FillChar(txPL, sizeof(txPL), 0);	//Sendepuffer löschen
 
-          //Sensortyp ermitteln
-          if (rxPL.devTyp = 1) then begin //Levelsensor
-            //anpassen !!!!!!
-            txPL.devUID:= rxPL.devUID; //Sensor UID
-            txPL.mac6 := rxPL.mac6;
-            txPL.dsTime:= dword(180  * SEK);
-            txPL.fast_motion := 0;
-            txPL.temp_res := 10;
+          //Datensatz erstellen u. zur Liste hinzufügen
+          pl.uid := 				rxPL.devUID;
+          pl.typ := 				rxPL.devTyp;
+          pl.version := 		rxPL.version;
+          pl.revision := 		rxPL.revision;
 
-            sendFrame(txPL.data, 'A');
-          end else
-          if (rxPL.devTyp = 2) then begin //Temperatursensor
+          pl.Batterie:= 		rxPL.u3p3;
+  				pl.RunTime:=			rxPL.devOnTime;
+  				pl.cntTxShot:= 		rxPL.cnt_TxShoot;
 
-            txPL.devUID:= rxPL.devUID; //Sensor UID
-            txPL.mac6 := rxPL.mac6;
-            txPL.dsTime:= dword(180  * SEK);
-            txPL.fast_motion := 30;
-            txPL.temp_res := 10;
+					pl.Temperature:=	rxPL.temperature;
+  				pl.StatusTemp:= 	rxPL.fTemperature;
+					pl.ResolutionTemp:= rxPL.temp_res;
 
-            sendFrame(txPL.data, 'A');
-          end;
-          	s:= 'UID:      ' + IntToStr(rxPL.devUID) + #13;
-            writeln(S);
+  				pl.Level:= 				rxPL.mainValue;
+  				pl.StatusLevel:=	rxPL.fMeasure;
 
-          	s:= 'Level:    ' + IntToStr(rxPL.mainValue) + #13;
-            writeln(s);
-            s:= 'Temp:     ' + FloatToStr(rxPL.temperature / 16.0) + ' : '
-            								 + IntToStr(rxPL.fTemperature)  + #13;
-          	writeln(s);
-          	s:= 'Batterie: ' + FloatToStr(rxPL.u3p3 / 1024) + #13;
-          	writeln(s);
-            s:= 'Response: ' + IntToStr(rxPL.lastResponse)+' µs' + #13;
-            writeln(s);
-            s:= 'TxShoot:  ' + IntToStr(rxpl.cnt_TxShoot) + #13;
-            writeln(s);
-            s:= 'DevTime:  ' + IntToStr(rxpl.devTime div 1000) + ' ms' + #13;
-            writeln(s);
-            s:= 'Version:  ' + IntToStr(rxpl.version) + '.' + IntToStr(rxpl.revision) + #13;
-            writeln(s);
-            writeln ('************************' + #13);
+          ix:= lSensors.addData(pl);
+          ds:= lSensors.get(ix).DeepSleep; //nächste Schlafdauer
 
+          //Gateway Response
+          txPL.devUID:= rxPL.devUID; //Sensor UID
+          txPL.mac6 := rxPL.mac6;
+          txPL.dsTime:= ds;
+          txPL.fast_motion := 0;
+          txPL.temp_res := 10;
 
+          sendFrame(txPL.data, 'A');
+
+          writeDS2cmdline(pl);
 
         end else begin
  						 //CRC-Fehler -> Meldung zurückschicken
@@ -190,11 +180,13 @@ begin
   if UpperCase(ReadKey) = 'Q' then Terminate;
 end;
 
+//-----------------------------------------------------------------------------
+
 constructor tIogGateway.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
   StopOnException := True;
-
+  lSensors:= tSensorList.create(); //Datenhandling
   OpenRS232();
 end;
 
@@ -203,6 +195,7 @@ end;
 
 destructor tIogGateway.Destroy;
 begin
+  lSensors.Free;
   rs232.Destroy;
   inherited Destroy;
 end;
