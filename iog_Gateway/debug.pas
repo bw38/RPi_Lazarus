@@ -18,7 +18,7 @@ begin
   writeln('Version: ' + IntToStr(pl.version) + '.' + IntToStr(pl.revision)+#13);
   writeln('---------'+#13);
   writeln('Batterie:' + IntToStr(pl.Batterie)+#13);
-  writeln('Runtime:  ' + IntToStr(pl.RunTime)+#13);
+  writeln('Runtime: ' + IntToStr(pl.RunTime)+#13);
   writeln('Tx-Shot: ' + IntToStr(pl.cntTxShot)+#13);
   writeln('---------'+#13);
   writeln('Temp:    ' + IntToStr(pl.Temperature)+#13);
