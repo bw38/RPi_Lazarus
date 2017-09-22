@@ -4,7 +4,7 @@ unit DataFile;
 
 interface
 uses Classes, SysUtils, FileUtil;
-
+//ggf Suchpfad ergänzen (FileUtil) => .../lazarus/components/lazutils/
 //Erstatz für IniFile
 //IniFile.ReadString kann max 2kB lange Strings lesen, bricht danach ohne Fehlermeldung ab
 //max Ini-Dateilänge 64kB

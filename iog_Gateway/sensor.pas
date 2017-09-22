@@ -1,4 +1,4 @@
-unit data;
+unit sensor;
 
 {$mode objfpc}{$H+}
 
@@ -90,7 +90,7 @@ begin
   typ:= typ_;
   version:= ver_;
   revision:= rev_;
-  DeepSleep:= 300 * SEK;    //default 5Min
+  DeepSleep:= 10*SEK;//300 * SEK;    //default 5Min
   TempRes:= 9;
 end;
 
@@ -129,6 +129,7 @@ begin
   inherited create;
   sensors:= tList.Create;
   FOnChangeChannel:= nil;
+  MasterChannel:= 7;
 end;
 
 destructor tSensorList.destroy;
@@ -140,7 +141,9 @@ end;
 
 procedure tSensorList.FSetMasterChannel(ch: byte);
 begin
-    if Assigned(FOnChangeChannel) then FOnChangeChannel(ch);
+  //Sicherstellen, dass alle Sensoren über Kanalwechsel informiert werden
+  // !!!!
+	if Assigned(FOnChangeChannel) then FOnChangeChannel(ch);
 end;
 
 //Rückgabe der typisierten Instanz
@@ -173,6 +176,7 @@ begin
   ix:= indexOf(pl.uid);
 	if ix < 0 then begin //neuer Sensor
   	sen:= tSensor.create(pl.uid, pl.typ, pl.version, pl.revision);
+    sen.Channel := MasterChannel;
     ix:= sensors.Add(sen);
   end;
   ds:= tDataset.Create();

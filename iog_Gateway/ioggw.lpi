@@ -35,7 +35,7 @@
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="data.pas"/>
+        <Filename Value="sensor.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
@@ -51,7 +51,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi"/>
+      <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>

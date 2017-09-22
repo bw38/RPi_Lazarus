@@ -7,7 +7,7 @@ uses
   cthreads, cmem,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  crt, piSerial, typedef, data, debug;
+  crt, piSerial, typedef, sensor, debug, DataFile;
 
   { tIogGateway }
 
@@ -69,7 +69,7 @@ var	i, n, ix: integer;
     rxCRC: tCRC;
     pl: tPayLoad;
     ds: dword;
-    tres: byte;
+    tres, chWifi: byte;
     cFTyp: char;	//Frametyp
     lenPL: byte;
 
@@ -84,7 +84,7 @@ begin
       if ix = 0 then exit;
       cFTyp:= rxLine[ix + 4];
       lenPL:= byte(rxLine[ix + 5]); //Payload max 255 Bytes
-      if n < lenPL+10 then exit;
+      if n-ix < lenPL+9 then exit;
       if rxLine[ix+5+lenPL+1] <> cFTyp then exit; //Wiederholung Frametyp
       if rxLine[ix+5+lenPL+4] <> #10 then exit;
 
@@ -119,6 +119,7 @@ begin
       				ix:= lSensors.addData(pl);
       				ds:= lSensors.get(ix).DeepSleep; //nächste Schlafdauer
       				tres:= lSensors.get(ix).TempRes; //f. nächste Temperaturmessung
+              chWifi:= lSensors.get(ix).Channel; //Wifi-Kanal f. nächste Kommunkation
 
       				//Gateway Response - "A"-Frame
       				txPL.devUID:= rxPL.devUID; //Sensor UID
@@ -126,6 +127,7 @@ begin
       				txPL.dsTime:= ds;
       				txPL.fast_motion := 0;
       				txPL.temp_res := tres;
+              txPL.wifi_channel := chWifi;
 
       				sendFrame(txPL.data, 'A');
 
@@ -135,19 +137,23 @@ begin
         			lSensors.saveData(pl);
         		end;
 
-       'C': SetWifiChannel(lSensors.MasterChannel);
+       'C': SetWifiChannel(lSensors.MasterChannel); //Abfrage Kanal, ohne Payload
+            //aktuellen Channel sofort zurücksenden
 
 
 
-        end;
-      end else begin
- 						 //CRC-Fehler -> Meldung zurückschicken
-			end;
-			if n > lenPL+10 then begin //ggf log-messages ausgeben
+        end;  //case
+
+        if n > lenPL+10 then begin //ggf log-messages ausgeben
       	s:= copy(rxLine, 1, n - (lenPL+10));
       	writeln(s);
-      end;
-      rxline:= '';
+      	end;
+      	rxline:= '';
+      end else begin
+        writeln('CRC ERROR !!!!!!');
+        //CRC-Fehler -> Meldung zurückschicken
+			end;
+
     end;  // if #10
   end;    //for
 end;
@@ -159,7 +165,7 @@ var s: string;
 begin
 	setlength(s, sizeof(pl));
 	move(pl[0], s[1], length(s));
-  s:= '$RJ*' + typ + s + typ;
+  s:= '$RJ*' + typ + char(length(s)) + s + typ;
   crc.val := crc16(s);
   s:= s + char(crc.data[0]) + char(crc.data[1]) + #10;
   crc.val := length(s);
@@ -169,11 +175,10 @@ end;
 
 //"C"-Frame an Gateway zum Kanalwechsel
 procedure tIoGGateway.SetWifiChannel(ch: byte);
-var pl: tTxPayload;
+var channel: byte;
 begin
-  FillChar(pl, sizeof(pl), 0);	//Sendepuffer löschen
-  pl.wifi_channel := ch;
-	sendFrame(pl.data, 'C');
+  channel := ch;
+	sendFrame(channel, 'C');
 end;
 
 //----------------------------------------------------------------------------
@@ -208,11 +213,12 @@ end;
 constructor tIogGateway.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-  StopOnException := True;
+  StopOnException:= True;
   lSensors:= tSensorList.create(); //Datenhandling
-  lSensors.onSetMasterChannel := SetWifiChannel;
+  lSensors.onSetMasterChannel:= SetWifiChannel; //Callback-Procedure
   OpenRS232();
   lSensors.loadData(now);	//Daten des aktuellen Tages laden
+  lSensors.MasterChannel:= 7;
 end;
 
 
