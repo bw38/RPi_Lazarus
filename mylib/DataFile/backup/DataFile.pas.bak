@@ -1,0 +1,203 @@
+unit DataFile;
+
+interface
+uses Classes, SysUtils;
+
+//Erstatz für IniFile
+//IniFile.ReadString kann max 2kB lange Strings lesen, bricht danach ohne Fehlermeldung ab
+//max Ini-Dateilänge 64kB
+
+
+const SFA = '[';  //Sectionflag Anfang
+      SFE = ']';  //Sectionflag Ende
+
+type
+  tDataFile = class(tObject)
+      constructor create(fn: string);
+      destructor Destroy; override;
+    private
+      DL1: tStringList;  //Hauptdatenliste
+      FFileName: string;
+      FPath: string;
+      FChanged: boolean;
+    public
+      property FileName: string read FFileName;
+      property Path: string read FPath write FPath;
+      property Changed: boolean read FChanged write FChanged;
+
+      procedure ReadSection(Section: string; sl: tStringList);
+      procedure ReadSections(sl: tStringList);
+      procedure EraseSection(Section: string);
+
+      function ReadInteger(Section, Key: string; DefVal: integer): integer;
+      function ReadFloat(Section, Key: string; DefVal: double): double;
+      function ReadBool(Section, Key: string; DefVal: boolean): boolean;
+      function ReadString(Section, Key: string; DefVal: string): string;
+
+      procedure WriteInteger(Section, Key: string; Val: integer);
+      procedure WriteFloat(Section, Key: string; Val: double);
+      procedure WriteBool(Section, Key: string; Val: boolean);
+      procedure WriteString(Section, Key: string; Val: string);
+
+      procedure DeleteKey(Section, Key: string);
+
+      procedure UpdateFile;
+  end;
+
+
+implementation
+
+constructor tDataFile.create(fn: string);
+begin
+  inherited Create;
+  DL1:= tStringList.Create;
+  DL1.Sorted:= false;
+  FFileName:= fn;
+  Path:= ExtractFilePath(fn);
+  if FileExists(fn) then DL1.LoadFromFile(fn);
+  Changed:= false;
+
+end;
+
+destructor tDataFile.Destroy;
+begin
+  UpDateFile;
+  DL1.Free;
+  inherited Destroy;
+end;
+
+
+procedure tDataFile.UpdateFile;
+begin
+  if Changed then begin
+    if not DirectoryExists(Path) then ForceDirectories(Path);
+    //Backupbeahndlung !!!!!!!!!
+
+    DL1.SaveToFile(FileName);
+  end;
+end;
+//-----------------------------------------------------------------------------
+procedure tDataFile.ReadSection(Section: string; sl: tStringList);
+var ix: integer;
+begin
+  sl.Clear;
+  ix:= DL1.IndexOf(SFA+Section+SFE)+1; //Zeiger auf 1. Datenzeile
+  if ix>0 then begin
+    while (ix<DL1.Count)and((length(DL1[ix])=0)or(DL1[ix][1]<>SFA)) do begin
+      if length(DL1[ix])>0 then sl.Add(DL1.Names[ix]);
+      inc(ix);
+    end;
+  end;
+end;
+
+//Section wird an Hand des SFA erkannt
+procedure tDataFile.ReadSections(sl: tStringList);
+var ix: integer;
+begin
+  sl.Clear;
+  for ix:= 0 to DL1.Count-1 do
+    if (length(DL1[ix])>0)and(DL1[ix][1] = SFA) then sl.Add(copy(DL1[ix],2, length(DL1[ix])-2));
+end;
+
+procedure tDataFile.EraseSection(Section: string);
+var ix: integer;
+begin
+  ix:= DL1.IndexOf(SFA+Section+SFE);
+  if ix>=0 then begin
+    DL1.Delete(ix);  //Sectionheader löschen
+    while (ix<DL1.Count)and((length(DL1[ix])=0)or(DL1[ix][1]<>SFA)) do DL1.Delete(ix);
+  end;
+end;
+
+
+function tDataFile.ReadInteger(Section, Key: string; DefVal: integer): integer;
+begin
+  try
+    Result:= StrToInt(ReadString(Section, Key, IntToStr(DefVal)));
+  except
+    Result:= DefVal;
+  end;
+end;
+
+function tDataFile.ReadFloat(Section, Key: string; DefVal: double): double;
+begin
+  try
+    Result:= StrToFloat(ReadString(Section, Key, FloatToStr(DefVal)));
+  except
+    Result:= DefVal;
+  end;
+end;
+function tDataFile.ReadBool(Section, Key: string; DefVal: boolean): boolean;
+begin
+  try
+    Result:= StrToBool(ReadString(Section, Key, BoolToStr(DefVal)));
+  except
+    Result:= DefVal;
+  end;
+end;
+
+function tDataFile.ReadString(Section, Key: string; DefVal: string): string;
+var ix: integer;
+begin
+  Result:= DefVal;
+  ix:= DL1.IndexOf(SFA+Section+SFE)+1; //Zeiger auf 1. Datenzeile
+  if ix>0 then begin
+    //Section durchsuchen
+    while (ix<DL1.Count)and((length(DL1[ix])=0)or(DL1[ix][1]<>SFA)) do begin
+      if DL1.Names[ix]=Key then Result:= DL1.ValueFromIndex[ix];
+      inc(ix);
+    end;
+  end;
+end;
+
+procedure tDataFile.WriteInteger(Section, Key: string; Val: integer);
+begin
+  WriteString(Section, Key, IntToStr(Val));
+end;
+
+procedure tDataFile.WriteFloat(Section, Key: string; Val: double);
+begin
+  WriteString(Section, Key, FloatToStr(Val));
+end;
+
+procedure tDataFile.WriteBool(Section, Key: string; Val: boolean);
+begin
+  WriteString(Section, Key, BoolToStr(Val));
+end;
+
+procedure tDataFile.WriteString(Section, Key: string; Val: string);
+var ix: integer;
+begin
+  ix:= DL1.IndexOf(SFA+Section+SFE)+1;
+  if ix=0 then begin //Section noch nicht vorhanden
+    DL1.Add(SFA+Section+SFE); //neue Section
+    DL1.Add(Key+'='+Val);
+  end else begin
+    //Testen, ob der Schlüssel schon vorhanden ist
+    while (ix<DL1.Count)and((length(DL1[ix])=0)or(DL1[ix][1]<>SFA)) do begin
+      if DL1.Names[ix]=Key
+        then Dl1.Delete(ix)
+        else inc(ix);
+    end;
+    DL1.Insert(ix, Key+'='+Val);
+  end;
+  Changed:= true;
+end;
+
+procedure tDataFile.DeleteKey(Section, Key: string);
+var ix: integer;
+begin
+  ix:= DL1.IndexOf(SFA+Section+SFE)+1;
+  if ix>0 then begin
+    //Testen, ob der Schlüssel vorhanden ist
+    //auch Duplkate löschen
+    while (ix<DL1.Count)and((length(DL1[ix])=0)or(DL1[ix][1]<>SFA)) do begin
+      if DL1.Names[ix]=Key
+        then Dl1.Delete(ix)
+        else inc(ix);
+    end;
+  end;
+  Changed:= true;
+end;
+
+end.
