@@ -5,7 +5,7 @@ unit debug;
 interface
 
 uses
-  Classes, SysUtils, data, typedef;
+  Classes, SysUtils, typedef;
 
 procedure writeDS2cmdline(pl: tPayLoad);
 

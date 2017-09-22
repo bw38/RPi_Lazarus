@@ -18,12 +18,14 @@ type
     rxLine: AnsiString;
     rxPL: tRxPayload;
     txPL: tTxPayload;
-    lSensors: TSensorList;	//Wurzel der Datensätze
+    lSensors: TSensorList;	//Wurzel der Datensätze des aktuellen Tages
 
     procedure OpenRS232();
     procedure RxData(s: AnsiString);
     procedure sendFrame(pl: array of byte; typ: char);
     procedure terminatedRS232(Sender: tObject);
+
+    procedure SetWifiChannel(ch: byte);
 
     procedure DoRun; override;
   public
@@ -63,78 +65,89 @@ end;
 
 //Data received
 procedure tIogGateway.RxData(s: AnsiString);
-var	i, n, sz, ix: integer;
+var	i, n, ix: integer;
     rxCRC: tCRC;
     pl: tPayLoad;
     ds: dword;
+    tres: byte;
+    cFTyp: char;	//Frametyp
+    lenPL: byte;
 
 begin
   for i:= 1 to length(s) do begin
     rxline:= rxline + s[i];		//zeichenweise Bearbeitung
     if s[i] = #10 then begin  //Frameabschluss mit \n
-      sz:= sizeof(rxPL.data);
+      //Validierung
+      n:= length(rxLine);
+      if n < 10 then exit;					//min. Länge overhead
+      ix:= pos('$JR*', rxLine); 		//Frame-Prefix suchen
+      if ix = 0 then exit;
+      cFTyp:= rxLine[ix + 4];
+      lenPL:= byte(rxLine[ix + 5]); //Payload max 255 Bytes
+      if n < lenPL+10 then exit;
+      if rxLine[ix+5+lenPL+1] <> cFTyp then exit; //Wiederholung Frametyp
+      if rxLine[ix+5+lenPL+4] <> #10 then exit;
 
-      //gültiger A-Frame ?  73 Bytes (incl CRC und nl)
-      n:=  length(rxline);
-      if (n >= sz + 9) and	//Databytes + Overhead
-  			 (rxLine[n - (sz+8)] = '$') and      //Fix - daten prüfen
-         (rxLine[n - (sz+7)] = 'J') and
-         (rxLine[n - (sz+6)] = 'R') and
-         (rxLine[n - (sz+5)] = '*') and
-         (rxLine[n - (sz+4)] = 'A') and
-         (rxLine[n- 3] = 'A')
-      then begin
+      move (rxLine[ix+5+lenPL+2], rxCRC.data, 2);  //CRC prüfen
+      if rxCRC.val = crc16(copy(rxline, ix, lenPL+7)) then begin
 
-        move (rxLine[n-2], rxCRC.data, 2);
-        if rxCRC.val = crc16(copy(rxline, n - (sz+8), sz+6)) then begin
-          //Datenpaket des esp8266 aus Frame heraukopieren
-      		move (rxLine[n - (sz+3)], rxPL.data, sz);
+        case cFTyp of
+        'A': begin
+   	  				//Datenpaket des esp8266 aus Frame heraukopieren
+    					move (rxLine[ix+6], rxPL.data, lenPL);
+			      	FillChar(txPL, sizeof(txPL), 0);	//Sendepuffer löschen
 
-          FillChar(txPL, sizeof(txPL), 0);	//Sendepuffer löschen
+      				//Datensatz erstellen u. zur Liste hinzufügen
+      				pl.uid := 				rxPL.devUID;
+      				pl.typ := 				rxPL.devTyp;
+      				pl.version := 		rxPL.version;
+      				pl.revision := 		rxPL.revision;
 
-          //Datensatz erstellen u. zur Liste hinzufügen
-          pl.uid := 				rxPL.devUID;
-          pl.typ := 				rxPL.devTyp;
-          pl.version := 		rxPL.version;
-          pl.revision := 		rxPL.revision;
+      				pl.Batterie:= 		round(rxPL.u3p3 / 1.024);
+  						pl.RunTime:=			rxPL.devOnTime;
+  						pl.cntTxShot:= 		rxPL.cnt_TxShoot;
 
-          pl.Batterie:= 		rxPL.u3p3;
-  				pl.RunTime:=			rxPL.devOnTime;
-  				pl.cntTxShot:= 		rxPL.cnt_TxShoot;
+							pl.Temperature:=	rxPL.temperature;
+  						pl.StatusTemp:= 	rxPL.fTemperature;
+							pl.ResolutionTemp:= rxPL.temp_res;
 
-					pl.Temperature:=	rxPL.temperature;
-  				pl.StatusTemp:= 	rxPL.fTemperature;
-					pl.ResolutionTemp:= rxPL.temp_res;
+  						pl.Level:= 				rxPL.mainValue;
+  						pl.StatusLevel:=	rxPL.fMeasure;
 
-  				pl.Level:= 				rxPL.mainValue;
-  				pl.StatusLevel:=	rxPL.fMeasure;
+      				pl.Timestamp := now;
 
-          ix:= lSensors.addData(pl);
-          ds:= lSensors.get(ix).DeepSleep; //nächste Schlafdauer
+      				ix:= lSensors.addData(pl);
+      				ds:= lSensors.get(ix).DeepSleep; //nächste Schlafdauer
+      				tres:= lSensors.get(ix).TempRes; //f. nächste Temperaturmessung
 
-          //Gateway Response
-          txPL.devUID:= rxPL.devUID; //Sensor UID
-          txPL.mac6 := rxPL.mac6;
-          txPL.dsTime:= ds;
-          txPL.fast_motion := 0;
-          txPL.temp_res := 10;
+      				//Gateway Response - "A"-Frame
+      				txPL.devUID:= rxPL.devUID; //Sensor UID
+      				txPL.mac6 := rxPL.mac6;
+      				txPL.dsTime:= ds;
+      				txPL.fast_motion := 0;
+      				txPL.temp_res := tres;
 
-          sendFrame(txPL.data, 'A');
+      				sendFrame(txPL.data, 'A');
 
-          writeDS2cmdline(pl);
+      				writeDS2cmdline(pl);
+      				writeln('RespTime: ' + IntToStr(rxPL.lastResponse)+#13);
 
-        end else begin
+        			lSensors.saveData(pl);
+        		end;
+
+       'C': SetWifiChannel(lSensors.MasterChannel);
+
+
+
+        end;
+      end else begin
  						 //CRC-Fehler -> Meldung zurückschicken
-        end;
-			  if n>sz+9 then begin //ggf log-messages ausgeben
-        	s:= copy(rxLine, 1, n - (sz+9));
-          writeln(s);
-        end;
-
-
-        rxline:= '';
+			end;
+			if n > lenPL+10 then begin //ggf log-messages ausgeben
+      	s:= copy(rxLine, 1, n - (lenPL+10));
+      	writeln(s);
       end;
-
+      rxline:= '';
     end;  // if #10
   end;    //for
 end;
@@ -151,6 +164,16 @@ begin
   s:= s + char(crc.data[0]) + char(crc.data[1]) + #10;
   crc.val := length(s);
   rs232.WriteData(s);
+end;
+
+
+//"C"-Frame an Gateway zum Kanalwechsel
+procedure tIoGGateway.SetWifiChannel(ch: byte);
+var pl: tTxPayload;
+begin
+  FillChar(pl, sizeof(pl), 0);	//Sendepuffer löschen
+  pl.wifi_channel := ch;
+	sendFrame(pl.data, 'C');
 end;
 
 //----------------------------------------------------------------------------
@@ -187,10 +210,10 @@ begin
   inherited Create(TheOwner);
   StopOnException := True;
   lSensors:= tSensorList.create(); //Datenhandling
+  lSensors.onSetMasterChannel := SetWifiChannel;
   OpenRS232();
+  lSensors.loadData(now);	//Daten des aktuellen Tages laden
 end;
-
-
 
 
 destructor tIogGateway.Destroy;

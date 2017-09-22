@@ -17,7 +17,7 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
+        <TopLine Value="76"/>
         <CursorPos X="5" Y="83"/>
         <UsageCount Value="36"/>
         <Loaded Value="True"/>
@@ -63,9 +63,10 @@
       <Unit7>
         <Filename Value="../mylib/piserial/piserial.pas"/>
         <UnitName Value="piSerial"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="122"/>
-        <CursorPos X="55" Y="127"/>
+        <TopLine Value="187"/>
+        <CursorPos Y="212"/>
         <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit7>

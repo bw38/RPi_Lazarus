@@ -5,27 +5,9 @@ unit data;
 interface
 
 uses
-  Classes, SysUtils, typedef;
+  Classes, SysUtils, typedef, debug;
 
 type
-
-tPayload = record
-  uid: word;
-  typ: word;
-  version: byte;
-  revision: byte;
-
-  Batterie: word;
-  RunTime: dword;
-  cntTxShot: word;
-
-  Temperature: word;
-  StatusTemp: byte;
-  ResolutionTemp: byte;
-
-  Level: word;
-  StatusLevel: byte;
-end;
 
 tDataSet = class
 	TimeStamp: tDateTime;
@@ -53,6 +35,9 @@ public
   version, revision: byte;
 
   DeepSleep: dword;	//Schlafzeit nach nächstem Telegramm
+  TempRes: byte;		//Auflösung der nächsten Temperaturmessung 9..12
+
+  Channel: byte;
 
   constructor create(uid_, typ_: word; ver_, rev_: byte);
   destructor destroy;  override;
@@ -61,17 +46,35 @@ public
   function addDataSet(ds: tDataSet): integer;
 end;
 
+//Callback type
+TChangeChannel = procedure(ch: byte) of object;
 
 tSensorList = class
 private
 	sensors: tList;
+  FMasterChannel: byte;
+  FOnChangeChannel: TChangeChannel;
 
+  procedure FSetMasterChannel(ch: byte);
 public
+
+  property MasterChannel: byte read FMasterChannel write FSetMasterChannel;
+  property onSetMasterChannel: TChangeChannel read FOnChangeChannel write FOnChangeChannel;
+
   constructor create();
   destructor destroy;  override;
+
   function get(ix: integer): tSensor;
   function indexOf(uid: word): integer;
-  function addData(pl: tPayLoad) : integer;
+  function addData(pl: tPayLoad): integer;
+
+  function getFileName(date: tDateTime): string;
+  function getFilePath(): string;
+
+  function saveData(pl: tPayLoad): boolean;
+  function loadData(date: tDateTime): boolean;
+
+
 end;
 
 implementation
@@ -88,6 +91,7 @@ begin
   version:= ver_;
   revision:= rev_;
   DeepSleep:= 300 * SEK;    //default 5Min
+  TempRes:= 9;
 end;
 
 destructor tSensor.destroy;
@@ -113,6 +117,8 @@ end;
 
 function tSensor.addDataSet(ds: tDataSet): integer;
 begin
+  //Anzahel der Datensätzen je Sensor im Speicher begrenzen
+  if data.Count >= 1000 then data.Delete(0);
   result:= data.Add(ds);
 end;
 
@@ -122,7 +128,7 @@ constructor tSensorList.create();
 begin
   inherited create;
   sensors:= tList.Create;
-
+  FOnChangeChannel:= nil;
 end;
 
 destructor tSensorList.destroy;
@@ -130,6 +136,11 @@ var i: integer;
 begin
   for i:= 0 to sensors.Count-1 do get(i).Free;
   inherited destroy;
+end;
+
+procedure tSensorList.FSetMasterChannel(ch: byte);
+begin
+    if Assigned(FOnChangeChannel) then FOnChangeChannel(ch);
 end;
 
 //Rückgabe der typisierten Instanz
@@ -165,7 +176,7 @@ begin
     ix:= sensors.Add(sen);
   end;
   ds:= tDataset.Create();
-  ds.TimeStamp:= now;
+  ds.TimeStamp:= pl.Timestamp;
 
   ds.Batterie:= pl.Batterie;
   ds.RunTime:= pl.RunTime;
@@ -182,6 +193,65 @@ begin
   result:= ix;  					//Index des Sensors
 
 end;
+
+//Name der Datensatzdatei YYYY-mm-dd.iog
+function tSensorList.getFileName(date: tDateTime): string;
+begin
+  result:= FormatDateTime('YYYY-mm-dd', date) + '.iog'
+end;
+
+//Datensätze im HomeDir
+function tSensorlist.getFilePath(): string;
+begin
+	result:= GetUserDir() + '.iog/';
+end;
+
+//Datensatz speichern
+function tSensorList.saveData(pl: tPayLoad): boolean;
+var stream: tFileStream;
+    sdir, fn: string;
+begin
+  result:= false;
+  sdir:= getFilePath();
+  fn:= getFileName(now);  //in File mit aktuellem Datum
+  try
+  	if not DirectoryExists(sdir)
+  		then CreateDir(sdir);
+ 	 if FileExists(sdir + fn)
+  	  then stream := TFileStream.Create(sdir + fn, fmOpenWrite)
+    	else stream := TFileStream.Create(sdir + fn, fmCreate);
+
+  	stream.Position := stream.Size;
+  	stream.WriteBuffer(pl, sizeof(pl));
+    result:= true;
+  finally
+  	if assigned(stream) then stream.Free;
+  end;
+end;
+
+function tSensorList.loadData(date: tDateTime): boolean;
+var sdir, fn: string;
+    stream: tFileStream;
+    pl: tPayload;
+begin
+  result:= false;
+	sdir:= getFilePath();
+  fn:= getFileName(date);
+  try
+  	if FileExists(sdir+fn) then begin
+    	stream := TFileStream.Create(sdir + fn, fmOpenRead);
+      while stream.Position < stream.Size do begin
+      	stream.ReadBuffer(pl, sizeof(pl));
+        addData(pl);
+        // writeDS2cmdLine(pl);
+      end;
+      result:= true;
+    end;
+  finally
+  	if assigned(stream) then stream.Free;
+  end;
+end;
+
 
 end.
 

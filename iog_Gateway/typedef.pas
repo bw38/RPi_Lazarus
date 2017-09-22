@@ -123,6 +123,28 @@ type
     );
   end;
 
+  //Datensatz zum Speichern
+ tPayload = packed record
+  uid: word;
+  typ: word;
+  version: byte;
+  revision: byte;
+
+  Batterie: word;
+  RunTime: dword;
+  cntTxShot: word;
+
+  Temperature: word;
+  StatusTemp: byte;
+  ResolutionTemp: byte;
+
+  Level: word;
+  StatusLevel: byte;
+
+  Timestamp : tDateTime;
+end;
+
+
 
 function crc16(s: AnsiString):word;
 
