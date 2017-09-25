@@ -39,6 +39,11 @@ public
 
   Channel: byte;
 
+  //Variablen f. intelligenten Kanalwechsel
+  TimeStamp : tDateTime; 				//Zeitpunkt des letzten Telegramms
+  ChannelChangeTime: tDatetime; //Nach letzter Sensormeldung
+  NextChannel: byte;            //nächster Kanal
+
   constructor create(uid_, typ_: word; ver_, rev_: byte);
   destructor destroy;  override;
   function get(ix: integer): tDataSet;
@@ -68,9 +73,6 @@ public
   function indexOf(uid: word): integer;
   function addData(pl: tPayLoad): integer;
 
-  function getFileName(date: tDateTime): string;
-  function getFilePath(): string;
-
   function saveData(pl: tPayLoad): boolean;
   function loadData(date: tDateTime): boolean;
 
@@ -90,7 +92,7 @@ begin
   typ:= typ_;
   version:= ver_;
   revision:= rev_;
-  DeepSleep:= 10*SEK;//300 * SEK;    //default 5Min
+  DeepSleep:= 300 * SEK;    //default 5Min
   TempRes:= 9;
 end;
 
@@ -140,9 +142,15 @@ begin
 end;
 
 procedure tSensorList.FSetMasterChannel(ch: byte);
+var ix: integer;
+    resTi, hTi: tDateTime;
 begin
   //Sicherstellen, dass alle Sensoren über Kanalwechsel informiert werden
-  // !!!!
+  hTi:= now;
+  for ix:= 0 to sensors.Count - 1 do begin
+  	hTi:= get(ix).TimeStamp + (get(ix).DeepSleep/ (SEK * DAY));
+  end;
+
 	if Assigned(FOnChangeChannel) then FOnChangeChannel(ch);
 end;
 
@@ -198,17 +206,7 @@ begin
 
 end;
 
-//Name der Datensatzdatei YYYY-mm-dd.iog
-function tSensorList.getFileName(date: tDateTime): string;
-begin
-  result:= FormatDateTime('YYYY-mm-dd', date) + '.iog'
-end;
 
-//Datensätze im HomeDir
-function tSensorlist.getFilePath(): string;
-begin
-	result:= GetUserDir() + '.iog/';
-end;
 
 //Datensatz speichern
 function tSensorList.saveData(pl: tPayLoad): boolean;
@@ -217,7 +215,7 @@ var stream: tFileStream;
 begin
   result:= false;
   sdir:= getFilePath();
-  fn:= getFileName(now);  //in File mit aktuellem Datum
+  fn:= getDSFileName(now);  //File mit aktuellem Datum
   try
   	if not DirectoryExists(sdir)
   		then CreateDir(sdir);
@@ -239,8 +237,9 @@ var sdir, fn: string;
     pl: tPayload;
 begin
   result:= false;
+  stream:= nil;
 	sdir:= getFilePath();
-  fn:= getFileName(date);
+  fn:= getDSFileName(date);
   try
   	if FileExists(sdir+fn) then begin
     	stream := TFileStream.Create(sdir + fn, fmOpenRead);

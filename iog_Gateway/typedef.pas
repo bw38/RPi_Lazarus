@@ -5,10 +5,11 @@ unit typedef;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, DataFile;
 
 const
-  SEK = 1000000;
+  SEK = 1000000;  //µs
+  DAY = 24*60*60; //sek je Tag
 
 type
 
@@ -146,12 +147,62 @@ end;
 
 
 
+procedure df_write_channel(ch: byte);
+function  df_read_channel(): byte;
+
+function getDSFileName(date: tDateTime): string;
+function getFilePath(): string;
+procedure writeLogMessage(log: string);
+
 function crc16(s: AnsiString):word;
+
+
 
 implementation
 
+procedure df_write_channel(ch: byte);
+var fData: tDatafile;
+begin
+	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
+  fData.WriteInteger('Wifi', 'Channel',ch);
+  fData.Free;
+end;
 
 
+function  df_read_channel(): byte;
+var fData: tDatafile;
+begin
+	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
+  result:= fData.ReadInteger('Wifi', 'Channel', 7); //Default Channel 7
+  fData.Free;
+end;
+
+//Name der Datensatzdatei YYYY-mm-dd.iog
+function getDSFileName(date: tDateTime): string;
+begin
+  result:= FormatDateTime('YYYY-mm-dd', date) + '.iog'
+end;
+
+//Datensätze im HomeDir
+function getFilePath(): string;
+begin
+	result:= GetUserDir() + '.iog/';
+end;
+
+//Log-Datei schreiben
+procedure writeLogMessage(log: string);
+var lf: textfile;	//Logfile
+		fn: string;
+begin
+  fn:= getFilePath() + 'iog_msg.log';
+ 	AssignFile(lf, fn);
+	try
+		if FileExists(fn) then append(lf)	else rewrite(lf);
+    writeln(lf, log);
+	finally
+		CloseFile(lf);
+	end;
+end;
 
 
 //Adaption der CRC16-Function aus esp-source

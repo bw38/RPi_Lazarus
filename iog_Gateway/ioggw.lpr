@@ -28,6 +28,14 @@ type
     procedure SetWifiChannel(ch: byte);
 
     procedure DoRun; override;
+
+  private
+    fcUART: byte; //Flowcontrol Rx-Uart
+    cFTyp: char;
+    lenPL, cnt: byte;
+    cix: byte;
+    rxCRC: tCRC;
+
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -43,6 +51,7 @@ begin
 
     rs232.Device := '/dev/ttyAMA0';  // [UART0] - Bluetooth on Pi3
     rs232.Baudrate := B921600;       // getestet mit B921600
+    //rs232.Baudrate := B115200;
 		rs232.FlowControl := fcNone;
 
     rs232.onDataRcvd:= RxData;   		 // Rx-event
@@ -65,96 +74,119 @@ end;
 
 //Data received
 procedure tIogGateway.RxData(s: AnsiString);
-var	i, n, ix: integer;
-    rxCRC: tCRC;
+var	i, ix: integer;
     pl: tPayLoad;
     ds: dword;
     tres, chWifi: byte;
-    cFTyp: char;	//Frametyp
-    lenPL: byte;
+    sh: AnsiString;
 
 begin
   for i:= 1 to length(s) do begin
     rxline:= rxline + s[i];		//zeichenweise Bearbeitung
-    if s[i] = #10 then begin  //Frameabschluss mit \n
-      //Validierung
-      n:= length(rxLine);
-      if n < 10 then exit;					//min. Länge overhead
-      ix:= pos('$JR*', rxLine); 		//Frame-Prefix suchen
-      if ix = 0 then exit;
-      cFTyp:= rxLine[ix + 4];
-      lenPL:= byte(rxLine[ix + 5]); //Payload max 255 Bytes
-      if n-ix < lenPL+9 then exit;
-      if rxLine[ix+5+lenPL+1] <> cFTyp then exit; //Wiederholung Frametyp
-      if rxLine[ix+5+lenPL+4] <> #10 then exit;
+   // if s[i] in [' ' .. #127] then write(s[i]);
+      //FlowControl UART-Rx-Frame
+			// $ J R * [cFTyp][lenPL][Payload][cFTyp][lCRC](hCRC][\n]
+			// 0 1 2 3    4      5       6       7      8    9    10
+      case fcUART of
+      	0: if s[i] = '$' then begin
+           	inc(fcUART);
+           end;
+        1: if s[i] = 'J' then inc(fcUART) else fcUART:= 0;
+        2: if s[i] = 'R' then inc(fcUART) else fcUART:= 0;
+        3: if s[i] = '*' then begin
+             inc(fcUART);
+             rxline:= '$JR*';
+           end else begin
+             fcUART:= 0;
+             rxLine:= '';
+           end;
+        4: begin cFTyp:= s[i]; inc(fcUART); end;
+        5: begin lenPL:= byte(s[i]); inc(fcUART); if lenPL = 0 then inc(fcUART); cnt:= 0; end;
+        6: begin inc(cnt); if cnt >= lenPL then inc(fcUART); end;
+        7: if s[i] = cFTyp then inc(fcUART) else fcUART:= 0;
+        8: begin rxCRC.data[0]:= byte(s[i]); inc(fcUART); end;
+        9: begin rxCRC.data[1]:= byte(s[i]); inc(fcUART); end;
+       10: begin
+       			if ((s[i] = #10) and (rxCRC.val = crc16(copy(rxLine, 1, lenPL+7)))) then begin
 
-      move (rxLine[ix+5+lenPL+2], rxCRC.data, 2);  //CRC prüfen
-      if rxCRC.val = crc16(copy(rxline, ix, lenPL+7)) then begin
+              if cFTyp = 'A' then begin
+   	  		 			//Datenpaket des esp8266 aus Frame heraukopieren
+    						move (rxLine[7], rxPL.data, lenPL);
+			      		FillChar(txPL, sizeof(txPL), 0);	//Sendepuffer löschen
 
-        case cFTyp of
-        'A': begin
-   	  				//Datenpaket des esp8266 aus Frame heraukopieren
-    					move (rxLine[ix+6], rxPL.data, lenPL);
-			      	FillChar(txPL, sizeof(txPL), 0);	//Sendepuffer löschen
+      					//Datensatz erstellen u. zur Liste hinzufügen
+      					pl.uid := 				rxPL.devUID;
+      					pl.typ := 				rxPL.devTyp;
+      					pl.version := 		rxPL.version;
+      					pl.revision := 		rxPL.revision;
 
-      				//Datensatz erstellen u. zur Liste hinzufügen
-      				pl.uid := 				rxPL.devUID;
-      				pl.typ := 				rxPL.devTyp;
-      				pl.version := 		rxPL.version;
-      				pl.revision := 		rxPL.revision;
+      					pl.Batterie:= 		round(rxPL.u3p3 / 1.024);
+  							pl.RunTime:=			rxPL.devOnTime;
+  							pl.cntTxShot:= 		rxPL.cnt_TxShoot;
 
-      				pl.Batterie:= 		round(rxPL.u3p3 / 1.024);
-  						pl.RunTime:=			rxPL.devOnTime;
-  						pl.cntTxShot:= 		rxPL.cnt_TxShoot;
+            		pl.Temperature:=	rxPL.temperature;
+  							pl.StatusTemp:= 	rxPL.fTemperature;
+								pl.ResolutionTemp:= rxPL.temp_res;
 
-							pl.Temperature:=	rxPL.temperature;
-  						pl.StatusTemp:= 	rxPL.fTemperature;
-							pl.ResolutionTemp:= rxPL.temp_res;
+  							pl.Level:= 				rxPL.mainValue;
+  							pl.StatusLevel:=	rxPL.fMeasure;
 
-  						pl.Level:= 				rxPL.mainValue;
-  						pl.StatusLevel:=	rxPL.fMeasure;
+      					pl.Timestamp := now;
 
-      				pl.Timestamp := now;
+      					ix:= lSensors.addData(pl);       	//ix des Listeneintrages
+      					ds:= lSensors.get(ix).DeepSleep; 	//nächste Schlafdauer in µs
+      					tres:= lSensors.get(ix).TempRes; 	//f. nächste Temperaturmessung
+            		chWifi:= lSensors.get(ix).Channel; //Wifi-Kanal f. nächste Kommunkation
+                lSensors.get(ix).TimeStamp:= now;
 
-      				ix:= lSensors.addData(pl);
-      				ds:= lSensors.get(ix).DeepSleep; //nächste Schlafdauer
-      				tres:= lSensors.get(ix).TempRes; //f. nächste Temperaturmessung
-              chWifi:= lSensors.get(ix).Channel; //Wifi-Kanal f. nächste Kommunkation
+      					//Gateway Response - "A"-Frame
+      					txPL.devUID:= rxPL.devUID; //Sensor UID
+      					txPL.mac6 := rxPL.mac6;
+      					txPL.dsTime:= ds;
+      					txPL.fast_motion := 0;
+      					txPL.temp_res := tres;
+            		txPL.wifi_channel := chWifi;
 
-      				//Gateway Response - "A"-Frame
-      				txPL.devUID:= rxPL.devUID; //Sensor UID
-      				txPL.mac6 := rxPL.mac6;
-      				txPL.dsTime:= ds;
-      				txPL.fast_motion := 0;
-      				txPL.temp_res := tres;
-              txPL.wifi_channel := chWifi;
+      					sendFrame(txPL.data, 'A');
 
-      				sendFrame(txPL.data, 'A');
-
-      				writeDS2cmdline(pl);
-      				writeln('RespTime: ' + IntToStr(rxPL.lastResponse)+#13);
-
-        			lSensors.saveData(pl);
-        		end;
-
-       'C': SetWifiChannel(lSensors.MasterChannel); //Abfrage Kanal, ohne Payload
-            //aktuellen Channel sofort zurücksenden
+      					writeDS2cmdline(pl);
+            		lSensors.saveData(pl);
+        			end; // if cFTyp = 'A'
 
 
+       				if cFTyp = 'C' then begin
+            		SetWifiChannel(lSensors.MasterChannel); //Abfrage Kanal, ohne Payload
+            		//aktuellen Channel sofort zurücksenden
+              end;
 
-        end;  //case
+              if cFTyp = 'W' then begin
+                sh:= FormatDateTime(
+                	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Warn:  ' + pchar(@rxLine[7]);
+								writeLogMessage(sh);  //Logfile
+                writeln(sh); 					//Terminalausgabe
+              end;
 
-        if n > lenPL+10 then begin //ggf log-messages ausgeben
-      	s:= copy(rxLine, 1, n - (lenPL+10));
-      	writeln(s);
-      	end;
-      	rxline:= '';
-      end else begin
-        writeln('CRC ERROR !!!!!!');
-        //CRC-Fehler -> Meldung zurückschicken
-			end;
+              if cFTyp = 'E' then begin
+                sh:= FormatDateTime(
+                	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Error: ' + pchar(@rxLine[7]);
+								writeLogMessage(sh);  //Logfile
+                writeln(sh); 					//Terminalausgabe
+              end;
 
-    end;  // if #10
+              if cFTyp = 'L' then begin
+                sh:= FormatDateTime(
+                	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Log:   ' + pchar(@rxLine[7]);
+								writeLogMessage(sh);  //Logfile
+                writeln(sh); 					//Terminalausgabe
+              end;
+
+						end;  	//if nl and crc ok
+           	rxline:= '';
+           	fcUART:= 0;
+					end; //fcUART = 10
+
+
+      	end;  //case
   end;    //for
 end;
 
@@ -165,7 +197,7 @@ var s: string;
 begin
 	setlength(s, sizeof(pl));
 	move(pl[0], s[1], length(s));
-  s:= '$RJ*' + typ + char(length(s)) + s + typ;
+  s:= '$RJ*' + typ + char(sizeof(pl)) + s + typ;
   crc.val := crc16(s);
   s:= s + char(crc.data[0]) + char(crc.data[1]) + #10;
   crc.val := length(s);
@@ -178,7 +210,7 @@ procedure tIoGGateway.SetWifiChannel(ch: byte);
 var channel: byte;
 begin
   channel := ch;
-	sendFrame(channel, 'C');
+	sendFrame(ch, 'C');
 end;
 
 //----------------------------------------------------------------------------
@@ -214,16 +246,19 @@ constructor tIogGateway.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
   StopOnException:= True;
+  OpenRS232();
   lSensors:= tSensorList.create(); //Datenhandling
   lSensors.onSetMasterChannel:= SetWifiChannel; //Callback-Procedure
-  OpenRS232();
+  lSensors.MasterChannel:= df_read_channel();
   lSensors.loadData(now);	//Daten des aktuellen Tages laden
-  lSensors.MasterChannel:= 7;
+
+  rxLine:= '';
 end;
 
 
 destructor tIogGateway.Destroy;
 begin
+  df_write_channel(lSensors.MasterChannel);
   lSensors.Free;
   rs232.Destroy;
   inherited Destroy;
