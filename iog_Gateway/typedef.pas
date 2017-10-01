@@ -19,6 +19,9 @@ type
     1: (data: array[0..1] of byte);
   end;
 
+type
+ EMyException = class(Exception);
+
   //Datenpaket STLPU -> STLPR
   //sychron halten mit iog_sensors.h
   tRxPayload = packed record
@@ -147,8 +150,8 @@ end;
 
 
 
-procedure df_write_channel(ch: byte);
-function  df_read_channel(): byte;
+procedure config_write_channel(ch: byte);   //Datafile
+function  config_read_channel(): byte;
 
 function getDSFileName(date: tDateTime): string;
 function getFilePath(): string;
@@ -160,7 +163,8 @@ function crc16(s: AnsiString):word;
 
 implementation
 
-procedure df_write_channel(ch: byte);
+//Configdata Datafile
+procedure config_write_channel(ch: byte);
 var fData: tDatafile;
 begin
 	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
@@ -169,7 +173,7 @@ begin
 end;
 
 
-function  df_read_channel(): byte;
+function  config_read_channel(): byte;
 var fData: tDatafile;
 begin
 	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
@@ -202,6 +206,7 @@ begin
 	finally
 		CloseFile(lf);
 	end;
+  writeln(log+#13); 					//Terminalausgabe
 end;
 
 

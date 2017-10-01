@@ -3,31 +3,31 @@
   <ProjectSession>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="ioggw.lpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="122"/>
-        <CursorPos X="44" Y="140"/>
-        <UsageCount Value="196"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="224"/>
+        <CursorPos X="57" Y="249"/>
+        <UsageCount Value="222"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="sensor.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="131"/>
-        <CursorPos X="58" Y="151"/>
-        <UsageCount Value="128"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="116"/>
+        <CursorPos X="26" Y="147"/>
+        <UsageCount Value="200"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="debug.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="34" Y="24"/>
-        <UsageCount Value="113"/>
+        <UsageCount Value="190"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -35,172 +35,165 @@
         <UnitName Value="piSerial"/>
         <EditorIndex Value="1"/>
         <TopLine Value="181"/>
-        <CursorPos Y="195"/>
-        <UsageCount Value="50"/>
+        <CursorPos X="65" Y="198"/>
+        <UsageCount Value="88"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="typedef.pas"/>
-        <EditorIndex Value="3"/>
-        <CursorPos X="19" Y="11"/>
-        <UsageCount Value="94"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="175"/>
+        <CursorPos X="18" Y="209"/>
+        <UsageCount Value="107"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="../mylib/wiringpi/wiringpi.pas"/>
+        <Filename Value="../mylib/DataFile/DataFile.pas"/>
         <EditorIndex Value="-1"/>
-        <CursorPos X="8" Y="27"/>
-        <UsageCount Value="7"/>
+        <TopLine Value="167"/>
+        <CursorPos Y="145"/>
+        <UsageCount Value="83"/>
       </Unit5>
       <Unit6>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="104"/>
-        <CursorPos Y="122"/>
-        <UsageCount Value="45"/>
-        <Loaded Value="True"/>
+        <Filename Value="timer.pas"/>
+        <UnitName Value="Timer"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="26"/>
+        <CursorPos X="2" Y="56"/>
+        <UsageCount Value="71"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="../../Development/FreePascal/lazarus/components/lazutils/lazutils.pas"/>
+        <UnitName Value="LazUtils"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="47" Y="20"/>
+        <UsageCount Value="5"/>
+      </Unit7>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="ioggw.lpr"/>
-        <Caret Line="169" TopLine="153"/>
+        <Caret Line="159" TopLine="146"/>
       </Position1>
       <Position2>
         <Filename Value="ioggw.lpr"/>
-        <Caret Line="170" TopLine="153"/>
+        <Caret Line="213" TopLine="194"/>
       </Position2>
       <Position3>
         <Filename Value="ioggw.lpr"/>
-        <Caret Line="172" TopLine="153"/>
+        <Caret Line="214" TopLine="194"/>
       </Position3>
       <Position4>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="184" TopLine="153"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="198" TopLine="191"/>
       </Position4>
       <Position5>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="147" Column="25" TopLine="118"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="199" TopLine="191"/>
       </Position5>
       <Position6>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="8" Column="30"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="210" Column="46" TopLine="188"/>
       </Position6>
       <Position7>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="9" Column="22"/>
+        <Filename Value="sensor.pas"/>
+        <Caret Line="145" TopLine="116"/>
       </Position7>
       <Position8>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="170" Column="14" TopLine="137"/>
+        <Filename Value="sensor.pas"/>
+        <Caret Line="146" TopLine="116"/>
       </Position8>
       <Position9>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="167" Column="14" TopLine="144"/>
+        <Filename Value="sensor.pas"/>
+        <Caret Line="148" TopLine="116"/>
       </Position9>
       <Position10>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="175" TopLine="148"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="214" TopLine="194"/>
       </Position10>
       <Position11>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="116" TopLine="94"/>
+        <Filename Value="sensor.pas"/>
+        <Caret Line="145" TopLine="116"/>
       </Position11>
       <Position12>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="117" TopLine="94"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="214" TopLine="194"/>
       </Position12>
       <Position13>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="118" TopLine="94"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="198" TopLine="191"/>
       </Position13>
       <Position14>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="175" TopLine="148"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="199" TopLine="191"/>
       </Position14>
       <Position15>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="116" TopLine="94"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="200" TopLine="191"/>
       </Position15>
       <Position16>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="117" TopLine="94"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="202" TopLine="191"/>
       </Position16>
       <Position17>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="118" TopLine="94"/>
+        <Filename Value="sensor.pas"/>
+        <Caret Line="145" TopLine="116"/>
       </Position17>
       <Position18>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="145" TopLine="125"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="223" Column="11" TopLine="215"/>
       </Position18>
       <Position19>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="175" TopLine="148"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="246" Column="14" TopLine="227"/>
       </Position19>
       <Position20>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="116" TopLine="98"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="248" Column="19" TopLine="229"/>
       </Position20>
       <Position21>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="117" TopLine="98"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="249" TopLine="230"/>
       </Position21>
       <Position22>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="118" TopLine="98"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="252" Column="11" TopLine="222"/>
       </Position22>
       <Position23>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="145" TopLine="127"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="253" Column="44" TopLine="234"/>
       </Position23>
       <Position24>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="146" TopLine="127"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="251" Column="63" TopLine="228"/>
       </Position24>
       <Position25>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="153" TopLine="127"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="252" Column="46" TopLine="226"/>
       </Position25>
       <Position26>
-        <Filename Value="../mylib/DataFile/DataFile.pas"/>
-        <Caret Line="122" TopLine="104"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="253" Column="18" TopLine="230"/>
       </Position26>
       <Position27>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="176" TopLine="148"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="259" Column="7" TopLine="226"/>
       </Position27>
       <Position28>
-        <Filename Value="typedef.pas"/>
-        <Caret Line="177" TopLine="148"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="258" Column="9" TopLine="235"/>
       </Position28>
       <Position29>
         <Filename Value="ioggw.lpr"/>
-        <Caret Line="140" Column="34" TopLine="123"/>
+        <Caret Line="242" Column="12" TopLine="223"/>
       </Position29>
       <Position30>
-        <Filename Value="sensor.pas"/>
-        <Caret Line="151" Column="55" TopLine="125"/>
+        <Filename Value="ioggw.lpr"/>
+        <Caret Line="243" Column="27" TopLine="223"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="2">
-      <Item1>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../mylib/DataFile/DataFile.pas"/>
-        <Line Value="118"/>
-      </Item1>
-      <Item2>
-        <Kind Value="bpkSource"/>
-        <WatchScope Value="wpsLocal"/>
-        <WatchKind Value="wpkWrite"/>
-        <Source Value="../mylib/DataFile/DataFile.pas"/>
-        <Line Value="145"/>
-      </Item2>
-    </BreakPoints>
     <Watches Count="2">
       <Item1>
         <Expression Value="s[i]"/>

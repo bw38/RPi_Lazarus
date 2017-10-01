@@ -5,7 +5,7 @@ unit sensor;
 interface
 
 uses
-  Classes, SysUtils, typedef, debug;
+  Classes, SysUtils, typedef, debug, fptimer, math;
 
 type
 
@@ -41,8 +41,7 @@ public
 
   //Variablen f. intelligenten Kanalwechsel
   TimeStamp : tDateTime; 				//Zeitpunkt des letzten Telegramms
-  ChannelChangeTime: tDatetime; //Nach letzter Sensormeldung
-  NextChannel: byte;            //nächster Kanal
+
 
   constructor create(uid_, typ_: word; ver_, rev_: byte);
   destructor destroy;  override;
@@ -131,7 +130,6 @@ begin
   inherited create;
   sensors:= tList.Create;
   FOnChangeChannel:= nil;
-  MasterChannel:= 7;
 end;
 
 destructor tSensorList.destroy;
@@ -141,17 +139,15 @@ begin
   inherited destroy;
 end;
 
-procedure tSensorList.FSetMasterChannel(ch: byte);
-var ix: integer;
-    resTi, hTi: tDateTime;
-begin
-  //Sicherstellen, dass alle Sensoren über Kanalwechsel informiert werden
-  hTi:= now;
-  for ix:= 0 to sensors.Count - 1 do begin
-  	hTi:= get(ix).TimeStamp + (get(ix).DeepSleep/ (SEK * DAY));
-  end;
 
-	if Assigned(FOnChangeChannel) then FOnChangeChannel(ch);
+procedure tSensorList.FSetMasterChannel(ch: byte);
+begin
+  if ch in [1..13] then begin
+  	FMasterChannel:= ch;
+    config_write_channel(MasterChannel);
+  	//ESP via C-Frame steuern
+  	if assigned(FOnChangeChannel) then FOnChangeChannel(ch);
+  end;
 end;
 
 //Rückgabe der typisierten Instanz
@@ -240,6 +236,7 @@ begin
   stream:= nil;
 	sdir:= getFilePath();
   fn:= getDSFileName(date);
+  //pl initialisieren !!!!!!!!!!!!!!!!!!!!!
   try
   	if FileExists(sdir+fn) then begin
     	stream := TFileStream.Create(sdir + fn, fmOpenRead);

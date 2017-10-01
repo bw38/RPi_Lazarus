@@ -36,6 +36,7 @@ type
     cix: byte;
     rxCRC: tCRC;
 
+
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -163,21 +164,18 @@ begin
                 sh:= FormatDateTime(
                 	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Warn:  ' + pchar(@rxLine[7]);
 								writeLogMessage(sh);  //Logfile
-                writeln(sh); 					//Terminalausgabe
               end;
 
               if cFTyp = 'E' then begin
                 sh:= FormatDateTime(
                 	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Error: ' + pchar(@rxLine[7]);
 								writeLogMessage(sh);  //Logfile
-                writeln(sh); 					//Terminalausgabe
               end;
 
               if cFTyp = 'L' then begin
                 sh:= FormatDateTime(
                 	'YYYY-MM-dd hh:nn:ss.zzz', now) + ' - Log:   ' + pchar(@rxLine[7]);
 								writeLogMessage(sh);  //Logfile
-                writeln(sh); 					//Terminalausgabe
               end;
 
 						end;  	//if nl and crc ok
@@ -207,9 +205,7 @@ end;
 
 //"C"-Frame an Gateway zum Kanalwechsel
 procedure tIoGGateway.SetWifiChannel(ch: byte);
-var channel: byte;
 begin
-  channel := ch;
 	sendFrame(ch, 'C');
 end;
 
@@ -219,6 +215,9 @@ end;
 procedure tIogGateway.DoRun;
 var
   ErrorMsg: String;
+  s: string;
+  chan: byte;
+  c: char;
 begin
   // quick check parameters
   ErrorMsg := CheckOptions('h', 'help');
@@ -235,9 +234,31 @@ begin
     Exit;
   end;
 
+  //MainLoop
+  while not Terminated do begin
+  	CheckSynchronize();  //Timer-Events (u.a.?)
+    sleep(20);
+    if keypressed then begin  //Tastatur nonblocking abfragen
+      c:= (ReadKey);
+    	if c = 'Q' then Terminate;
+    	//Manuelle Kanalumschaltung
+    	if c = 'C' then begin
+        write('Neuer Wifi-Kanal: ');
+        ReadLn(s);
+        try
+          chan:= StrToInt(s);
+          if not (chan in [1..13])
+	         	then raise EMyException.create('test');
+          lSensors.MasterChannel:= chan;
+        except
+          Writeln('Eingabefehler !!!')
+        end;
+
+      end;
+    end;
+  end;
 
 
-  if UpperCase(ReadKey) = 'Q' then Terminate;
 end;
 
 //-----------------------------------------------------------------------------
@@ -249,8 +270,9 @@ begin
   OpenRS232();
   lSensors:= tSensorList.create(); //Datenhandling
   lSensors.onSetMasterChannel:= SetWifiChannel; //Callback-Procedure
-  lSensors.MasterChannel:= df_read_channel();
+  lSensors.MasterChannel:= config_read_channel();
   lSensors.loadData(now);	//Daten des aktuellen Tages laden
+
 
   rxLine:= '';
 end;
@@ -258,7 +280,6 @@ end;
 
 destructor tIogGateway.Destroy;
 begin
-  df_write_channel(lSensors.MasterChannel);
   lSensors.Free;
   rs232.Destroy;
   inherited Destroy;
