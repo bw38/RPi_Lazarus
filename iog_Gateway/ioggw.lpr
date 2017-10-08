@@ -7,7 +7,7 @@ uses
   cthreads, cmem,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  crt, piSerial, typedef, sensor, debug, DataFile;
+  crt, piSerial, typedef, sensor, debug, DataFile, lNet;
 
   { tIogGateway }
 

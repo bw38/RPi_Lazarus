@@ -8,8 +8,7 @@
         <Filename Value="ioggw.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="224"/>
-        <CursorPos X="57" Y="249"/>
+        <CursorPos X="56" Y="10"/>
         <UsageCount Value="222"/>
         <Loaded Value="True"/>
       </Unit0>
@@ -17,7 +16,7 @@
         <Filename Value="sensor.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="116"/>
+        <TopLine Value="110"/>
         <CursorPos X="26" Y="147"/>
         <UsageCount Value="200"/>
         <Loaded Value="True"/>
