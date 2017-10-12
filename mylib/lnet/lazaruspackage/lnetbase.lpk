@@ -1,13 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
-  <Package Version="3">
+  <Package Version="4">
     <Name Value="lnetbase"/>
+    <AddToProjectUsesSection Value="True"/>
     <Author Value="Aleš Katona, Micha Nelissen"/>
     <CompilerOptions>
-      <Version Value="10"/>
+      <Version Value="11"/>
       <SearchPaths>
         <IncludeFiles Value="../lib/sys"/>
-        <OtherUnitFiles Value="../lib"/>
+        <OtherUnitFiles Value="../lib;../../../../Development/FreePascal/fpc/packages/openssl/src"/>
         <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
         <SrcPath Value="../lib;../lib/sys"/>
       </SearchPaths>
@@ -26,7 +27,7 @@
       </CodeGeneration>
       <Linking>
         <Debugging>
-          <GenerateDebugInfo Value="True"/>
+          <DebugInfoType Value="dsStabs"/>
         </Debugging>
       </Linking>
       <Other>
@@ -35,11 +36,7 @@
           <ShowHints Value="False"/>
           <ShowGenInfo Value="False"/>
         </Verbosity>
-        <CompilerMessages>
-          <UseMsgFile Value="True"/>
-        </CompilerMessages>
         <CustomOptions Value="-dLNET_BASE"/>
-        <CompilerPath Value="$(CompPath)"/>
       </Other>
     </CompilerOptions>
     <Description Value="Lightweight Networking Library, or lNet is a networking suite  providing simple and effective means to use TCP, UDP, FTP, SMTP, Telnet and HTTP protocols over the net.
@@ -47,7 +44,7 @@
     <License Value="LGPL with exception, see LICENSE and LICENSE.addon
 "/>
     <Version Minor="6" Release="6"/>
-    <Files Count="27">
+    <Files Count="28">
       <Item1>
         <Filename Value="../lib/lnet.pp"/>
         <UnitName Value="lNet"/>
@@ -156,6 +153,10 @@
         <Filename Value="../lib/fastcgi_base.pp"/>
         <UnitName Value="fastcgi_base"/>
       </Item27>
+      <Item28>
+        <Filename Value="../../../../Development/FreePascal/fpc/packages/openssl/src/openssl.pas"/>
+        <UnitName Value="openssl"/>
+      </Item28>
     </Files>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>

@@ -25,6 +25,8 @@ type
     procedure sendFrame(pl: array of byte; typ: char);
     procedure terminatedRS232(Sender: tObject);
 
+    procedure OpenTCP();
+
     procedure SetWifiChannel(ch: byte);
 
     procedure DoRun; override;
@@ -36,6 +38,12 @@ type
     cix: byte;
     rxCRC: tCRC;
 
+    srv1: TLTCP;
+
+    procedure OnSrvError(const msg: string; aSocket: TLSocket);
+    procedure OnSrvAccept(aSocket: TLSocket);
+    procedure OnSrvReceive(aSocket: TLSocket);
+    procedure OnSrvDisconnect(aSocket: TLSocket);
 
   public
     constructor Create(TheOwner: TComponent); override;
@@ -59,11 +67,15 @@ begin
     rs232.OnTerminate := terminatedRS232;
   	res:= rs232.Open();
     writeln('Open Rs232, fd: ' + IntToStr(res));
-
+    if res < 0 then Terminate;
     rs232.SetRTS(false);  //release esp-reset
     rs232.useSynchronize := false; //wg console-mode
 
-  end else writeln('Error on open Serial-Port');
+  end else begin
+    writeln('Error on open Serial-Port');
+    Terminate;
+  end;
+
 end;
 
 //Rx-Thread closed
@@ -210,6 +222,60 @@ begin
 end;
 
 //----------------------------------------------------------------------------
+//TCP-Server
+
+procedure tIoGGateway.OpenTCP();
+begin
+  srv1:= TLTCP.create(nil);
+  srv1.OnError := OnSrvError;     // assign all callbacks
+  srv1.OnReceive := OnSrvReceive;
+  srv1.OnDisconnect := OnSrvDisconnect;
+  srv1.OnAccept := OnSrvAccept;
+  srv1.Timeout := 100; // responsive enough, but won't hog cpu
+  srv1.ReuseAddress := True;
+
+  if not srv1.Listen(38081) then begin
+    writeln('Error on Open TCP-Server');
+    Terminate;
+  end;
+end;
+
+
+procedure tIoGGateway.OnSrvError(const msg: string; aSocket: TLSocket);
+begin
+  Writeln(msg);  // if error occured, write it explicitly
+end;
+
+procedure tIoGGateway.OnSrvDisconnect(aSocket: TLSocket);
+begin
+  Writeln('Lost connection'); // write info if connection was lost
+end;
+
+procedure tIoGGateway.OnSrvAccept(aSocket: TLSocket);
+begin
+  Writeln('Connection accepted from ', aSocket.PeerAddress); // on accept, write whom we accepted
+end;
+
+
+procedure tIoGGateway.OnSrvReceive(aSocket: TLSocket);
+var
+  s: string;
+  n: Integer;
+begin
+  if aSocket.GetMessage(s) > 0 then begin // if we received anything (result is in s)
+    Writeln('Got: "', s, '" with length: ', Length(s)); // write message and it's length
+    srv1.IterReset; // now it points to server socket
+    while srv1.IterNext do begin // while we have clients to echo to
+      n := srv1.SendMessage(s, srv1.Iterator);
+      if n < Length(s) then // try to send to each of them
+        Writeln('Unsuccessful send, wanted: ', Length(s), ' got: ', n); // if send fails write error
+    end;
+  end;
+end;
+
+
+
+//----------------------------------------------------------------------------
 
 
 procedure tIogGateway.DoRun;
@@ -274,6 +340,8 @@ begin
   lSensors.loadData(now);	//Daten des aktuellen Tages laden
 
 
+  OpenTCP();
+
   rxLine:= '';
 end;
 
@@ -281,6 +349,7 @@ end;
 destructor tIogGateway.Destroy;
 begin
   lSensors.Free;
+  srv1.Free;
   rs232.Destroy;
   inherited Destroy;
 end;

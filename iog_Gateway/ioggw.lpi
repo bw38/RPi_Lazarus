@@ -51,7 +51,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils"/>
+      <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils;../mylib/lnet/lazaruspackage/lib/arm-linux"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Other>
