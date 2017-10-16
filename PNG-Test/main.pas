@@ -217,8 +217,8 @@ begin
   can.Font.Orientation := 0;
   can.Brush.Color := dsgn.clockValField;
   tsz:= can.TextExtent(s);
-  x:= rval.Width div 2 - tsz.Width div 2;
-  y:= rval.Height div 2 - tsz.Height div 2;
+  x:= (rval.Right-rval.Left) div 2 - tsz.cx div 2;
+  y:= (rval.Bottom-rval.Top) div 2 - tsz.cy div 2;
   can.Textout(rval.Left+x, rval.Top+y, s);
 
   //Min- / Max-Level

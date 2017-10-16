@@ -3,9 +3,9 @@ program project1;
 {$mode delphi}
 
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
-  cthreads,
-  {$ENDIF}{$ENDIF}
+
+  cthreads,  cmem,
+
   Interfaces, // this includes the LCL widgetset
   Forms, main, lnetvisual;
 
