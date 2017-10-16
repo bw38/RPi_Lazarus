@@ -5,7 +5,9 @@ unit sensor;
 interface
 
 uses
-  Classes, SysUtils, typedef, debug, fptimer, math;
+  Classes, SysUtils, typedef, debug, fptimer, math, Graphics, Types,
+  FPImage, FPCanvas, FPImgCanv, FPWritePNG,
+  ftfont;
 
 type
 
@@ -24,10 +26,19 @@ tDataSet = class
 
 end;
 
-
+type
 tSensor = class
 private
   data: tList;
+  FSensorName: string;
+
+  function GetLevel(): integer;
+  function GetMinLevel(): integer;
+  function GetMaxLevel(): integer;
+  function GetTemperature(): real;
+  function GetMinTemperature(): real;
+  function GetMaxTemperature(): real;
+  function GetInterval(): word;
 
 public
   uid: word;			//Informationen des Sensors
@@ -42,12 +53,27 @@ public
   //Variablen f. intelligenten Kanalwechsel
   TimeStamp : tDateTime; 				//Zeitpunkt des letzten Telegramms
 
+  spng: TMemoryStream;	//png zur Darstellung im Web-Interface
 
   constructor create(uid_, typ_: word; ver_, rev_: byte);
   destructor destroy;  override;
   function get(ix: integer): tDataSet;
   function getlast: tDataset;
   function addDataSet(ds: tDataSet): integer;
+
+  property Level: integer read GetLevel;
+  property minLevel: integer read GetMinLevel;
+  property maxLevel: integer read GetMaxLevel;
+
+  property Temp: real read GetTemperature;
+  property minTemp: real read GetMinTemperature;
+  property maxTemp: real read GetMaxTemperature;
+
+  property idTxt: string read FSensorName write FSensorName;
+  property Interval: word read GetInterval;
+
+
+  procedure DrawWidget(hSize: integer); //Web-Widget zeichnen und im Memorystream spichern
 end;
 
 //Callback type
@@ -69,6 +95,7 @@ public
   destructor destroy;  override;
 
   function get(ix: integer): tSensor;
+  function getByUID(uid: word): tSensor;
   function indexOf(uid: word): integer;
   function addData(pl: tPayLoad): integer;
 
@@ -93,11 +120,15 @@ begin
   revision:= rev_;
   DeepSleep:= 300 * SEK;    //default 5Min
   TempRes:= 9;
+  FSensorName:= 'Sensor XXX';
+
+  spng:= TMemoryStream.Create;
 end;
 
 destructor tSensor.destroy;
 var i: integer;
 begin
+  spng.Free;
   for i:= 0 to data.Count-1 do get(i).Free;
   data.Free;
   inherited destroy;
@@ -121,6 +152,49 @@ begin
   //Anzahel der Datensätzen je Sensor im Speicher begrenzen
   if data.Count >= 1000 then data.Delete(0);
   result:= data.Add(ds);
+end;
+
+//Füllstand in Prozent
+function tSensor.GetLevel(): integer;
+begin
+  result:= 75;
+end;
+
+function tSensor.GetMinLevel(): integer;
+begin
+  result:= 53;
+end;
+
+function tSensor.GetMaxLevel(): integer;
+begin
+  result:= 88;
+end;
+
+function tSensor.GetTemperature(): real;
+begin
+  result:= 21.6;
+end;
+
+function tSensor.GetMinTemperature(): real;
+begin
+  result:= 15.2;
+end;
+
+function tSensor.GetMaxTemperature(): real;
+begin
+  result:= 27.3;
+end;
+
+//uhezeit sdes Sensors in Minuten
+function tSensor.GetInterval(): word;
+begin
+  result:= round(DeepSleep / (60 * Sek));
+end;
+
+procedure tSensor.DrawWidget(hSize: integer); //Web-Widget zeichnen und im Memorystream spichern
+{$I widget_level.inc} //Auslagerung in separate Dateien
+begin
+  draw_widget_level(hSize);
 end;
 
 //-----------------------------------------------------------------------------
@@ -169,6 +243,12 @@ begin
     end;
     inc(ix);
   end;
+end;
+
+
+function tSensorList.getByUID(uid: word): tSensor;
+begin
+  result:= self.get(self.indexof(uid));
 end;
 
 //Zentrale Funktion zum Hinzufügen von Sensoren und Datensätzen

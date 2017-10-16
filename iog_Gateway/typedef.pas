@@ -5,14 +5,14 @@ unit typedef;
 interface
 
 uses
-  Classes, SysUtils, DataFile;
+  Classes, SysUtils, DataFile, Graphics;
 
 const
   SEK = 1000000;  //µs
   DAY = 24*60*60; //sek je Tag
 
-type
 
+type
   tCRC = packed record
     case integer of
     0: (val: word);
@@ -149,6 +149,38 @@ type
 end;
 
 
+//Farben der Web-Widgets
+type
+  TDesign = record
+    outFrame,
+    outEdge,
+    outBack,
+    clockFace,
+    clockValField,
+    clockValTxt,
+    scaleLine,
+    scaleText,
+    needle,
+    txt,
+    trend: tColor;
+  end;
+
+const
+	dsgn_Dark: TDesign = ( // B / G / R
+		outFrame:			TColor($808080);
+  	outEdge:			TColor($C0C0C0);
+  	outBack:			TColor($606000);
+  	clockFace:  	TColor($004040);
+  	clockValField:TColor($80F080);
+  	clockValTxt:	TColor($000000);
+  	scaleLine:		TColor($B0B0B0);
+  	scaleText:		TColor($E0F0E0);
+  	needle:     	TColor($0000FF);
+  	txt:					TColor($FFFFFF);
+  	trend:				TColor($FF0000);
+	);
+
+var dsgn: TDesign;
 
 procedure config_write_channel(ch: byte);   //Datafile
 function  config_read_channel(): byte;

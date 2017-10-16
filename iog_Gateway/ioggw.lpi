@@ -29,7 +29,12 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="3">
+    <RequiredPackages Count="1">
+      <Item1>
+        <PackageName Value="LCLBase"/>
+      </Item1>
+    </RequiredPackages>
+    <Units Count="5">
       <Unit0>
         <Filename Value="ioggw.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -42,6 +47,14 @@
         <Filename Value="debug.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="wiget_level.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="widget_level.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -54,6 +67,11 @@
       <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils;../mylib/lnet/lazaruspackage/lib/arm-linux"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
+    <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-dUseCThreads"/>
     </Other>

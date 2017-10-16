@@ -19,6 +19,7 @@ type
     rxPL: tRxPayload;
     txPL: tTxPayload;
     lSensors: TSensorList;	//Wurzel der Datensätze des aktuellen Tages
+    tcpRxLine: string;
 
     procedure OpenRS232();
     procedure RxData(s: AnsiString);
@@ -226,6 +227,7 @@ end;
 
 procedure tIoGGateway.OpenTCP();
 begin
+  tcpRxLine:= '';
   srv1:= TLTCP.create(nil);
   srv1.OnError := OnSrvError;     // assign all callbacks
   srv1.OnReceive := OnSrvReceive;
@@ -234,7 +236,7 @@ begin
   srv1.Timeout := 100; // responsive enough, but won't hog cpu
   srv1.ReuseAddress := True;
 
-  if not srv1.Listen(38081) then begin
+  if not srv1.Listen(38180, '0.0.0.0') then begin
     writeln('Error on Open TCP-Server');
     Terminate;
   end;
@@ -259,19 +261,46 @@ end;
 
 procedure tIoGGateway.OnSrvReceive(aSocket: TLSocket);
 var
-  s: string;
-  n: Integer;
+  msg: AnsiString;
+  i, uid, sz: Integer;
+  ar2: array of byte;
+  sl: tStringList;
+  sen: tSensor;
+
 begin
-  if aSocket.GetMessage(s) > 0 then begin // if we received anything (result is in s)
-    Writeln('Got: "', s, '" with length: ', Length(s)); // write message and it's length
-    srv1.IterReset; // now it points to server socket
-    while srv1.IterNext do begin // while we have clients to echo to
-      n := srv1.SendMessage(s, srv1.Iterator);
-      if n < Length(s) then // try to send to each of them
-        Writeln('Unsuccessful send, wanted: ', Length(s), ' got: ', n); // if send fails write error
-    end;
-  end;
+  aSocket.GetMessage(msg);
+  for i:= 1 to length(msg) do begin
+    if msg[i] <> #10
+      then tcpRxLine:= tcpRxLine + msg[i]
+      else begin
+      	sl:= tStringList.Create;
+        sl.Delimiter := ' ';
+        sl.DelimitedText := tcpRxLine;
+        tcpRxLine:= '';
+    		//Auswertung
+        try
+      		if sl[0] = '§WDG' then begin //Widget zeichnen, 1- Sensornummer, 2- Höhe in pixeln
+          	if sl.Count <> 3 then raise EMyException.create('Error extern TCP-Command');
+            uid:= StrToInt(sl[1]);
+            sz:= StrToInt(sl[2]);
+            sen:= lSensors.getByUID(uid);
+            sen.DrawWidget(sz);
+            sz:= sen.spng.Size;
+            setlength(ar2, sz);
+            sen.spng.Position := 0;
+            sen.spng.Read(ar2[0], sz);
+  					aSocket.Send(ar2[0], sz);
+  					aSocket.Disconnect();
+            setlength(ar2, 0);
+        	end;
+
+        finally
+    			sl.Free;
+        end;
+  		end; //if
+  end; //for
 end;
+
 
 
 
@@ -302,6 +331,7 @@ begin
 
   //MainLoop
   while not Terminated do begin
+      srv1.CallAction();
   	CheckSynchronize();  //Timer-Events (u.a.?)
     sleep(20);
     if keypressed then begin  //Tastatur nonblocking abfragen
@@ -343,6 +373,7 @@ begin
   OpenTCP();
 
   rxLine:= '';
+  dsgn:= dsgn_Dark;
 end;
 
 
