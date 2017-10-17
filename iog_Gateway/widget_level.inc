@@ -8,12 +8,12 @@ const ratio = 1.5; //width = hSize * ratio
 var can : TFPCustomCanvas;
     img : TFPCustomImage;
     writer : TFPCustomImageWriter;
-    w, h, ang, szval, sz, x, y, mxt: integer;
+    w, h, ang, szval, sz, x, y, mxt, h2, w2: integer;
     mcf, pA, pE, pT: TPoint;
     rsA1, rsA2, rsE, rsT, rsN, a: real;
     rval: TRect;
     tsz: TSize;
-    s: string;
+    s: ansistring;
     AFont: TFreeTypeFont;
     time: cardinal;
 
@@ -34,7 +34,7 @@ begin
   Writer := TFPWriterPNG.Create;
 
   ftfont.InitEngine;
-  FontMgr.SearchPath:='/usr/share/fonts/truetype/droid/'; //dejavu/';
+  FontMgr.SearchPath:='/usr/share/fonts/truetype/dejavu/';
   AFont:= TFreeTypeFont.Create;
   can.Font:= AFont;
 
@@ -59,13 +59,13 @@ begin
   rsA1:= XY(32); 	//Radien Skala
   rsA2:= XY(29);
   rsE:= XY(27);
-  rsT:= XY(39);
+  rsT:= XY(36);  //Scalenbeschriftung
   rsN:= XY(29);  //Needle
 
   can.Pen.FPColor := TColorToFPColor(dsgn.scaleLine);
 	can.Pen.Width := XY(1.2);
   can.Font.Size := XY(3.2);
-	can.Font.Name:= 'DroidSansMono'; //'DejaVuSansCondensed';
+	can.Font.Name:= 'DejaVuSans';
   can.Font.FPColor := TColorToFPColor(dsgn.scaleText);
 
   ang:= 0;			//Text Skala
@@ -82,31 +82,104 @@ begin
   	pE.y:= mcf.y + round(rsE*cos(a));
   	can.Line(pA, pE);
 
-		//Prozentwert Skala 0 / 50 / 100
-    case ang of   //mit Feinjustage entspr. TextlÃ¤nge
-    	0: begin
-    		pT.x:= mcf.x - round(rsT*sin(a-0.02*pi));
-  			pT.y:= mcf.y + round(rsT*cos(a-0.02*pi));
-    		can.Font.Orientation := 10; // round(RadToDeg(a)*(-10))+1800;
-    		can.TextOut(pT.x, pT.y, IntToStr(ang)+'%');
-    	end;
-      50: begin
-    		pT.x:= mcf.x - round(rsT*sin(a-0.03*pi));
-  			pT.y:= mcf.y + round(rsT*cos(a-0.03*pi));
-    		can.Font.Orientation := round(RadToDeg(a)*(-10))+1800;
-    		can.TextOut(pT.x, pT.y, IntToStr(ang)+'%');
-    	end;
-      100: begin
-    		pT.x:= mcf.x - round(rsT*sin(a-0.05*pi));
-  			pT.y:= mcf.y + round(rsT*cos(a-0.05*pi));
-    		can.Font.Orientation := round(RadToDeg(a)*(-10))+1800;
-    		can.TextOut(pT.x, pT.y, IntToStr(ang)+'%');
-    	end;
+		//Prozentwert Skala 0 / 1/2 / 1
+    case ang of
+    	0, 50, 100:
+        begin
+          if ang = 0 then s:= '0' else
+          if ang = 50 then s:= '1/2' else
+          s:= '1';
+    			pT.x:= mcf.x - round(rsT*sin(a));
+  				pT.y:= mcf.y + round(rsT*cos(a));
+        	w2:= can.TextWidth(s) div 2;
+        	h2:= can.TextHeight(s) div 2;
+    			can.TextOut(pT.x-w2, pT.y+h2, s);
+    		end;
     end; //case
 
   	a:= a + 0.075*pi;
     ang:= ang + 5;
   end;
+
+
+    //Feld f. mumerischen Wert im Ziffernblatt
+  can.Brush.FPColor := TColorToFPColor(dsgn.clockValField);
+  szval:= XY(20);
+  rval.Left := mcf.x - szval div 2;
+  rval.Right := rval.Left + szval;
+
+  rval.Top:= mcf.y + XY(20);
+  rval.Bottom:= rval.Top + round(szval*0.6);
+  can.Rectangle(rval);
+
+  //Numerischer Wert im Ziffernblatt
+  s:= IntToStr(level) + ' %';
+  can.Font.Size := XY(3.5);
+  can.Font.FPColor := TColorToFPColor(dsgn.clockValTxt);
+  can.Brush.FPColor := TColorToFPColor(dsgn.clockValField);
+  tsz:= can.TextExtent(s);
+  x:= (rval.Right-rval.Left) div 2 - tsz.cx div 2;
+  y:= (rval.Bottom-rval.Top) div 2 + tsz.cy div 2;
+  can.Textout(rval.Left+x, rval.Top+y, s);
+
+  //Min- / Max-Level
+  can.Pen.FPColor := TColorToFPColor(dsgn.trend);
+  can.Pen.Width:= XY(2.8);
+  x:= round(rsN);
+  can.Arc(
+  	mcf.x - x, mcf.y - x, mcf.x + x, mcf.y + x, //Quadrat des Kreises
+  	round(225 * 16 + minlevel * 2.7 * -16),			//auf 0% zurückdrehen (225°) - Minwert
+    round((maxlevel-minlevel) * 2.7 * -16));		//Winkel Maxwert bezogen auf 270° = 100%
+
+  //Nadel
+  a:= level*0.015*pi + 0.25*pi;
+  can.Pen.FPColor := TColorToFPColor(dsgn.needle);
+  can.Pen.Width := XY(1.8);
+  pE.x:= mcf.x - round(rsN*sin(a));   //lange Striche 10%
+  pE.y:= mcf.y + round(rsN*cos(a));
+  can.Line(mcf, pE);
+  can.Brush.FPColor := TColorToFPColor(dsgn.needle);
+  sz:= XY(8) div 2;
+  can.Ellipse(mcf.x - sz, mcf.y - sz, mcf.x + sz, mcf.y + sz  );
+
+  //Texte
+  mxt:= XY(115); //Centerline der Textausgaben
+  can.Brush.FPColor := TColorToFPColor(dsgn.outBack);
+  can.font.FPColor := TColorToFPColor(dsgn.txt);
+
+  //Name
+  can.Font.Size := XY(5);
+  tsz:= can.TextExtent(idtxt);
+  y:= XY(12);
+  can.TextOut(mxt-tsz.cx div 2, y, idtxt);
+  //Timestamp
+  s:= FormatDateTime('dd.mm.YY - hh:nn:ss', time);
+  can.Font.Size := XY(4);;
+  tsz:= can.TextExtent(s);
+  y:= XY(24);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Temperatur
+  s:= 'Temp: ' + FloatToStrF(temp, ffFixed, 7,1) + #176+'C';
+  tsz:= can.TextExtent(s);
+  y:= XY(45);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Min-Max-emp
+  s:= '[ ' +
+  	FloatToStrF(mintemp, ffFixed, 7,1) + ' / ' +
+  	FloatToStrF(maxtemp, ffFixed, 7,1) + #176+ 'C ]';
+  tsz:= can.TextExtent(s);
+  y:= XY(55);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Interval
+  s:= 'Interval: ' + IntToStr(interval) + 'min';
+  y:= XY(85);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+
+
+
+
+
+
 
 
   writeln('Dauer: ', IntToStr( GetTickCount() - time));
