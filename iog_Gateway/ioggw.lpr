@@ -86,7 +86,7 @@ begin
   rs232:= nil;
 end;
 
-//Data received
+//Data received via UART v. ESP8266
 procedure tIogGateway.RxData(s: AnsiString);
 var	i, ix: integer;
     pl: tPayLoad;
@@ -122,7 +122,7 @@ begin
         9: begin rxCRC.data[1]:= byte(s[i]); inc(fcUART); end;
        10: begin
        			if ((s[i] = #10) and (rxCRC.val = crc16(copy(rxLine, 1, lenPL+7)))) then begin
-
+              //Auswertung Frametyp
               if cFTyp = 'A' then begin
    	  		 			//Datenpaket des esp8266 aus Frame heraukopieren
     						move (rxLine[7], rxPL.data, lenPL);

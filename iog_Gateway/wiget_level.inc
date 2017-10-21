@@ -13,6 +13,7 @@ var png : TPortableNetworkGraphic;
   rval: TRect;
   tsz: TSize;
   s: string;
+  bmp: Graphics.tBitmap;
 
   //Umrechnung in Prozent bezogen auf GesamthÃ¶he
   function XY(p: real): integer;
@@ -23,6 +24,8 @@ var png : TPortableNetworkGraphic;
 begin
   h:= hSize;
   w:= round(hSize * ratio);
+  bmp:= Graphics.tBitmap.Create;
+  bmp.Clear;
 	bmp.Width := w;
 	bmp.Height := h;
 
@@ -179,4 +182,5 @@ begin
   finally
     png.Free;
   end;
+  bmp.Free;
 end;

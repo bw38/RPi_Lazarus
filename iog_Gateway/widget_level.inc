@@ -5,17 +5,22 @@ procedure draw_widget_level(hSize: integer);
 
 const ratio = 1.5; //width = hSize * ratio
 
-var can : TFPCustomCanvas;
-    img : TFPCustomImage;
+var //can : TFPCustomCanvas;
+    //img : TFPCustomImage;
+    img : TFPMemoryImage;
+  	can : TFPImageCanvas;
     writer : TFPCustomImageWriter;
     w, h, ang, szval, sz, x, y, mxt, h2, w2: integer;
-    mcf, pA, pE, pT: TPoint;
+    mcf, pA, pE, pT, pQ: TPoint;
     rsA1, rsA2, rsE, rsT, rsN, a: real;
     rval: TRect;
     tsz: TSize;
     s: ansistring;
     AFont: TFreeTypeFont;
     time: cardinal;
+    bTrend: boolean;
+    fpc: TFPColor;
+    pw: integer;
 
     //Umrechnung in Prozent bezogen auf Gesamthöhe
     function XY(p: real): integer;
@@ -69,18 +74,22 @@ begin
   can.Font.FPColor := TColorToFPColor(dsgn.scaleText);
 
   ang:= 0;			//Text Skala
-  a:= 0.25*pi; 	//Anfangswinkel
+  bTrend:= false;
   while ang <= 100 do begin
-    if ang mod 2 = 0 then begin
+    a:= (ang * 2.7 + 45) * pi / 180; //45° - 315° => 0 - 100%
+    if ang mod 10 = 0 then begin
 	  	pA.x:= mcf.x - round(rsA1*sin(a));   //lange Striche 10%
   		pA.y:= mcf.y + round(rsA1*cos(a));
-    end else begin
+      pE.x:= mcf.x - round(rsE*sin(a));
+  		pE.y:= mcf.y + round(rsE*cos(a));
+  		can.Line(pA, pE);
+    end else if ang mod 5 = 0 then begin
       pA.x:= mcf.x - round(rsA2*sin(a));   //kurze Striche 5%
   		pA.y:= mcf.y + round(rsA2*cos(a));
+    	pE.x:= mcf.x - round(rsE*sin(a));
+  		pE.y:= mcf.y + round(rsE*cos(a));
+  		can.Line(pA, pE);
     end;
-    pE.x:= mcf.x - round(rsE*sin(a));
-  	pE.y:= mcf.y + round(rsE*cos(a));
-  	can.Line(pA, pE);
 
 		//Prozentwert Skala 0 / 1/2 / 1
     case ang of
@@ -96,13 +105,26 @@ begin
     			can.TextOut(pT.x-w2, pT.y+h2, s);
     		end;
     end; //case
-
-  	a:= a + 0.075*pi;
-    ang:= ang + 5;
+    inc(ang);
   end;
 
+  //min/max-Level
+  a:= (minlevel * 2.7 + 45) * pi / 180;
+  pQ.x:= mcf.x - round(rsN*sin(a));
+  pQ.y:= mcf.y + round(rsN*cos(a));
+  can.MoveTo(pQ);
+  can.Pen.FPColor := TColorToFPColor(dsgn.trend);
+  can.Pen.Width:= XY(2);
+  for ang:= minlevel+1 to maxlevel do begin
+    a:= (ang * 2.7 + 45) * pi / 180;
+    pQ.x:= mcf.x - round(rsN*sin(a));
+    pQ.y:= mcf.y + round(rsN*cos(a));
+    can.LineTo(pQ);
+  end;
 
-    //Feld f. mumerischen Wert im Ziffernblatt
+  //Feld f. mumerischen Wert im Ziffernblatt
+  can.Pen.FPColor := TColorToFPColor(dsgn.outEdge);
+  can.Pen.Width := XY(1);;
   can.Brush.FPColor := TColorToFPColor(dsgn.clockValField);
   szval:= XY(20);
   rval.Left := mcf.x - szval div 2;
@@ -121,15 +143,6 @@ begin
   x:= (rval.Right-rval.Left) div 2 - tsz.cx div 2;
   y:= (rval.Bottom-rval.Top) div 2 + tsz.cy div 2;
   can.Textout(rval.Left+x, rval.Top+y, s);
-
-  //Min- / Max-Level
-  can.Pen.FPColor := TColorToFPColor(dsgn.trend);
-  can.Pen.Width:= XY(2.8);
-  x:= round(rsN);
-  can.Arc(
-  	mcf.x - x, mcf.y - x, mcf.x + x, mcf.y + x, //Quadrat des Kreises
-  	round(225 * 16 + minlevel * 2.7 * -16),			//auf 0% zurückdrehen (225°) - Minwert
-    round((maxlevel-minlevel) * 2.7 * -16));		//Winkel Maxwert bezogen auf 270° = 100%
 
   //Nadel
   a:= level*0.015*pi + 0.25*pi;
@@ -159,7 +172,7 @@ begin
   y:= XY(24);
   can.TextOut(mxt-tsz.cx div 2, y, s);
   //Temperatur
-  s:= 'Temp: ' + FloatToStrF(temp, ffFixed, 7,1) + #176+'C';
+  s:= 'Temp: ' + FloatToStrF(temp, ffFixed, 7,1) + #176+'C';  //°C
   tsz:= can.TextExtent(s);
   y:= XY(45);
   can.TextOut(mxt-tsz.cx div 2, y, s);
@@ -175,18 +188,11 @@ begin
   y:= XY(85);
   can.TextOut(mxt-tsz.cx div 2, y, s);
 
-
-
-
-
-
-
-
-  writeln('Dauer: ', IntToStr( GetTickCount() - time));
+ // writeln('Dauer1: ', IntToStr( GetTickCount() - time));
 
   spng.Clear;
   img.SaveToStream(spng, writer);
-
+  //writeln('Dauer2: ', IntToStr( GetTickCount() - time));
   can.Free;
   img.Free;
   writer.Free;

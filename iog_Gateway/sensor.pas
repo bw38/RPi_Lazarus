@@ -149,25 +149,25 @@ end;
 
 function tSensor.addDataSet(ds: tDataSet): integer;
 begin
-  //Anzahel der Datensätzen je Sensor im Speicher begrenzen
-  if data.Count >= 1000 then data.Delete(0);
+  //Datensätze ab 0:00 Uhr im Speicher
+  if frac(getLast.TimeStamp) > frac(now) then data.Clear;
   result:= data.Add(ds);
 end;
 
 //Füllstand in Prozent
 function tSensor.GetLevel(): integer;
 begin
-  result:= 75;
+  result:= getLast.Level;
 end;
 
 function tSensor.GetMinLevel(): integer;
 begin
-  result:= 53;
+  result:= -5;
 end;
 
 function tSensor.GetMaxLevel(): integer;
 begin
-  result:= 88;
+  result:= 115;
 end;
 
 function tSensor.GetTemperature(): real;
