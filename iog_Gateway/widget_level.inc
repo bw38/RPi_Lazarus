@@ -1,6 +1,7 @@
 //aus der unit sensor ausgelagerte Procedure zum Zeichnen der Level-Gauge
 //Ergebnis in spng (MemoryStream) als png ablegen
 
+
 procedure draw_widget_level(hSize: integer);
 
 const ratio = 1.5; //width = hSize * ratio
@@ -161,15 +162,15 @@ begin
   can.font.FPColor := TColorToFPColor(dsgn.txt);
 
   //Name
-  can.Font.Size := XY(5);
+  can.Font.Size := XY(4);
   tsz:= can.TextExtent(idtxt);
-  y:= XY(12);
+  y:= XY(15);
   can.TextOut(mxt-tsz.cx div 2, y, idtxt);
   //Timestamp
-  s:= FormatDateTime('dd.mm.YY - hh:nn:ss', time);
-  can.Font.Size := XY(4);;
+  s:= FormatDateTime('dd.mm.YY - hh:nn:ss', sensortime);
+  can.Font.Size := XY(3.5);;
   tsz:= can.TextExtent(s);
-  y:= XY(24);
+  y:= XY(30);
   can.TextOut(mxt-tsz.cx div 2, y, s);
   //Temperatur
   s:= 'Temp: ' + FloatToStrF(temp, ffFixed, 7,1) + #176+'C';  //°C

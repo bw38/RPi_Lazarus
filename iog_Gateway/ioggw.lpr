@@ -130,7 +130,7 @@ begin
 
       					//Datensatz erstellen u. zur Liste hinzufügen
       					pl.uid := 				rxPL.devUID;
-      					pl.typ := 				rxPL.devTyp;
+      					pl.sensors :=			rxPL.sensors;
       					pl.version := 		rxPL.version;
       					pl.revision := 		rxPL.revision;
 
@@ -284,13 +284,15 @@ begin
             uid:= StrToInt(sl[1]);
             sz:= StrToInt(sl[2]);
             sen:= lSensors.getByUID(uid);
-            sen.DrawWidget(sz);
-            sz:= sen.spng.Size;
-            setlength(ar2, sz);
-            sen.spng.Position := 0;
-            sen.spng.Read(ar2[0], sz);
-  					aSocket.Send(ar2[0], sz);
-  					aSocket.Disconnect();
+            if assigned(sen) then begin
+           		sen.DrawWidget(sz);
+           		sz:= sen.spng.Size;
+            	setlength(ar2, sz);
+            	sen.spng.Position := 0;
+            	sen.spng.Read(ar2[0], sz);
+  						aSocket.Send(ar2[0], sz);
+            end;
+            aSocket.Disconnect();
             setlength(ar2, 0);
         	end;
 
@@ -360,6 +362,8 @@ end;
 //-----------------------------------------------------------------------------
 
 constructor tIogGateway.Create(TheOwner: TComponent);
+var df: tDatafile;
+  	fn: string;
 begin
   inherited Create(TheOwner);
   StopOnException:= True;
@@ -373,7 +377,25 @@ begin
   OpenTCP();
 
   rxLine:= '';
+
   dsgn:= dsgn_Dark;
+  //alternative Farbtabelle laden
+  fn:= getFilePath() + 'config/' +  'iog_colors.ini';
+  if fileexists(fn) then begin
+		df:= tDataFile.create(fn);
+	  dsgn.clockFace := 		df.ReadInteger('colors', 'clockFace', dsgn.clockFace);
+  	dsgn.clockValField := df.ReadInteger('colors', 'clockValField', dsgn.clockValField);
+	  dsgn.clockValTxt := 	df.ReadInteger('colors', 'clockValTxt', dsgn.clockValTxt);
+  	dsgn.needle := 				df.ReadInteger('colors', 'needle', dsgn.needle);
+	  dsgn.outBack := 			df.ReadInteger('colors', 'outBack', dsgn.outBack);
+  	dsgn.outEdge := 			df.ReadInteger('colors', 'outEdge', dsgn.outEdge);
+	  dsgn.outFrame := 			df.ReadInteger('colors', 'outFrame', dsgn.outFrame);
+  	dsgn.scaleLine := 		df.ReadInteger('colors', 'scaleLine', dsgn.scaleLine );
+  	dsgn.scaleText := 		df.ReadInteger('colors', 'scaleText', dsgn.scaleText);
+	  dsgn.txt := 					df.ReadInteger('colors', 'txt', dsgn.txt);
+  	dsgn.trend := 				df.ReadInteger('colors', 'trend', dsgn.trend);
+	  df.Free;
+  end;
 end;
 
 

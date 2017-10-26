@@ -14,7 +14,7 @@ implementation
 procedure writeDS2cmdline(pl: tPayLoad);
 begin
 	writeln('UID:     ' + IntToStr(pl.uid)+#13);
-  writeln('Typ:     ' + IntToStr(pl.typ)+#13);
+  writeln('Sensors: ' + IntToStr(pl.sensors)+#13);
   writeln('Version: ' + IntToStr(pl.version) + '.' + IntToStr(pl.revision)+#13);
   writeln('---------'+#13);
   writeln('Batterie:' + IntToStr(pl.Batterie)+#13);

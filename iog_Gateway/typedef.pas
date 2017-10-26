@@ -27,7 +27,7 @@ type
   tRxPayload = packed record
     case integer of
     0: (
-    devTyp,        //+0
+		val8X,        //+0
 		mac6,
 		fMeasure,
 		fTemperature,
@@ -35,47 +35,47 @@ type
 		revision,
 		rstReason,
 		temp_res,
-    val8A,
-    val8B,
-    val8C,
-    val8D,
-    val8E,
-    val8F,
-    val8G,
-    val8H  : byte;
+		val8A,
+		val8B,
+		val8C,
+		val8D,
+		val8E,
+		val8F,
+		val8G,
+		val8H  : byte;
 
 		u3p3,							//+16
 		temperature,
 		cnt_TxShoot,
-		val16A,
-    val16B,
-    val16C,
-    val16D,
-    val16E  : word;
+		sensors,
+		val16B,
+		val16C,
+		val16D,
+		val16E  : word;
 
 		devTime,					//+32
 		devOnTime,
-    lastResponse,
+		lastResponse,
 		mainValue,
 		val32B,
 		val32C,
 		val32D,
 		val32E,
-    val32F,
-    val32G,
-    val32H,
-    val32I,
-    val32J,
-    val32K,
-    val32L,
-    val32M,
-    val32N,
-    val32O,
-    val32P,
-    val32Q,
-    val32R,
-    val32S,
-    val32T   : dword;
+		val32F,
+		val32G,
+		val32H,
+		val32I,
+		val32J,
+		val32K,
+		val32L,
+		val32M,
+		val32N,
+		val32O,
+		val32P,
+		val32Q,
+		val32R,
+		val32S,
+		val32T   : dword;
 
 		devUID,					//+124
 		crc16: word;		//+126
@@ -90,7 +90,7 @@ type
 	tTxPayload = packed record
     case integer of
     0: (
-		devTyp,			//+0
+		val8X,			//+0
 		wifi_channel,
 		mac6,
 		fast_motion,
@@ -107,20 +107,20 @@ type
 		val8J,
 		val8K: byte;
 
-    dsTime,		//+16
+		dsTime,		//+16
 		val32A,
 		val32B,
-    val32C,
-    val32D,
-    val32E,
-    val32F,
-    val32G,
-    val32H,
-    val32I,
-    val32J: dword;
+		val32C,
+		val32D,
+		val32E,
+		val32F,
+		val32G,
+		val32H,
+		val32I,
+		val32J: dword;
 
-    devUID,        //+60
-    val16A: word;  //+62
+		devUID,        //+60
+		val16A: word;  //+62
     );
     1: (
     data: array[0..63] of byte;
@@ -130,7 +130,7 @@ type
   //Datensatz zum Speichern
  tPayload = packed record
   uid: word;
-  typ: word;
+  sensors: word;	//Bitmaske fühlertypen im Gerät 
   version: byte;
   revision: byte;
 
