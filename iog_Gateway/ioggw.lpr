@@ -7,7 +7,7 @@ uses
   cthreads, cmem,
   {$ENDIF}{$ENDIF}
   Classes, SysUtils, CustApp,
-  crt, piSerial, typedef, sensor, debug, DataFile, lNet;
+  crt, piSerial, typedef, sensor, debug, DataFile, lNet, drawweb;
 
   { tIogGateway }
 
@@ -36,7 +36,6 @@ type
     fcUART: byte; //Flowcontrol Rx-Uart
     cFTyp: char;
     lenPL, cnt: byte;
-    cix: byte;
     rxCRC: tCRC;
 
     srv1: TLTCP;
@@ -263,7 +262,6 @@ procedure tIoGGateway.OnSrvReceive(aSocket: TLSocket);
 var
   msg: AnsiString;
   i, uid, sz: Integer;
-  ar2: array of byte;
   sl: tStringList;
   sen: tSensor;
 
@@ -284,16 +282,9 @@ begin
             uid:= StrToInt(sl[1]);
             sz:= StrToInt(sl[2]);
             sen:= lSensors.getByUID(uid);
-            if assigned(sen) then begin
-           		sen.DrawWidget(sz);
-           		sz:= sen.spng.Size;
-            	setlength(ar2, sz);
-            	sen.spng.Position := 0;
-            	sen.spng.Read(ar2[0], sz);
-  						aSocket.Send(ar2[0], sz);
+            if assigned(sen) then begin    //Grafik in separatem Thread zeichnen
+           		sen.DrawWidget(sz, aSocket);
             end;
-            aSocket.Disconnect();
-            setlength(ar2, 0);
         	end;
 
         finally

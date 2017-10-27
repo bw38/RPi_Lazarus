@@ -6,11 +6,7 @@ procedure draw_widget_level(hSize: integer);
 
 const ratio = 1.5; //width = hSize * ratio
 
-var //can : TFPCustomCanvas;
-    //img : TFPCustomImage;
-    img : TFPMemoryImage;
-  	can : TFPImageCanvas;
-    writer : TFPCustomImageWriter;
+var writer : TFPCustomImageWriter;
     w, h, ang, szval, sz, x, y, mxt, h2, w2: integer;
     mcf, pA, pE, pT, pQ: TPoint;
     rsA1, rsA2, rsE, rsT, rsN, a: real;
@@ -18,10 +14,6 @@ var //can : TFPCustomCanvas;
     tsz: TSize;
     s: ansistring;
     AFont: TFreeTypeFont;
-    time: cardinal;
-    bTrend: boolean;
-    fpc: TFPColor;
-    pw: integer;
 
     //Umrechnung in Prozent bezogen auf Gesamthöhe
     function XY(p: real): integer;
@@ -31,7 +23,6 @@ var //can : TFPCustomCanvas;
 
 
 begin
-  time:= GetTickCount();
   h:= hSize;
   w:= round(hSize * ratio);
 
@@ -75,7 +66,6 @@ begin
   can.Font.FPColor := TColorToFPColor(dsgn.scaleText);
 
   ang:= 0;			//Text Skala
-  bTrend:= false;
   while ang <= 100 do begin
     a:= (ang * 2.7 + 45) * pi / 180; //45° - 315° => 0 - 100%
     if ang mod 10 = 0 then begin
@@ -110,13 +100,13 @@ begin
   end;
 
   //min/max-Level
-  a:= (minlevel * 2.7 + 45) * pi / 180;
+  a:= (dw_minlevel * 2.7 + 45) * pi / 180;
   pQ.x:= mcf.x - round(rsN*sin(a));
   pQ.y:= mcf.y + round(rsN*cos(a));
   can.MoveTo(pQ);
   can.Pen.FPColor := TColorToFPColor(dsgn.trend);
   can.Pen.Width:= XY(2);
-  for ang:= minlevel+1 to maxlevel do begin
+  for ang:= dw_minlevel+1 to dw_maxlevel do begin
     a:= (ang * 2.7 + 45) * pi / 180;
     pQ.x:= mcf.x - round(rsN*sin(a));
     pQ.y:= mcf.y + round(rsN*cos(a));
@@ -136,7 +126,7 @@ begin
   can.Rectangle(rval);
 
   //Numerischer Wert im Ziffernblatt
-  s:= IntToStr(level) + ' %';
+  s:= IntToStr(dw_level) + ' %';
   can.Font.Size := XY(3.5);
   can.Font.FPColor := TColorToFPColor(dsgn.clockValTxt);
   can.Brush.FPColor := TColorToFPColor(dsgn.clockValField);
@@ -146,7 +136,7 @@ begin
   can.Textout(rval.Left+x, rval.Top+y, s);
 
   //Nadel
-  a:= level*0.015*pi + 0.25*pi;
+  a:= dw_level*0.015*pi + 0.25*pi;
   can.Pen.FPColor := TColorToFPColor(dsgn.needle);
   can.Pen.Width := XY(1.8);
   pE.x:= mcf.x - round(rsN*sin(a));   //lange Striche 10%
@@ -163,37 +153,42 @@ begin
 
   //Name
   can.Font.Size := XY(4);
-  tsz:= can.TextExtent(idtxt);
+  tsz:= can.TextExtent(dw_idtxt);
   y:= XY(15);
-  can.TextOut(mxt-tsz.cx div 2, y, idtxt);
+  can.TextOut(mxt-tsz.cx div 2, y, dw_idtxt);
   //Timestamp
-  s:= FormatDateTime('dd.mm.YY - hh:nn:ss', sensortime);
+  s:= FormatDateTime('dd.mm.YY - hh:nn:ss', dw_sensortime);
   can.Font.Size := XY(3.5);;
   tsz:= can.TextExtent(s);
   y:= XY(30);
   can.TextOut(mxt-tsz.cx div 2, y, s);
   //Temperatur
-  s:= 'Temp: ' + FloatToStrF(temp, ffFixed, 7,1) + #176+'C';  //°C
+  s:= 'Temp: ' + FloatToStrF(dw_temp, ffFixed, 7,1) + #176+'C';  //°C
   tsz:= can.TextExtent(s);
   y:= XY(45);
   can.TextOut(mxt-tsz.cx div 2, y, s);
-  //Min-Max-emp
+  //Min-Max-Temp
   s:= '[ ' +
-  	FloatToStrF(mintemp, ffFixed, 7,1) + ' / ' +
-  	FloatToStrF(maxtemp, ffFixed, 7,1) + #176+ 'C ]';
+  	FloatToStrF(dw_mintemp, ffFixed, 7,1) + ' / ' +
+  	FloatToStrF(dw_maxtemp, ffFixed, 7,1) + #176+ 'C ]';
   tsz:= can.TextExtent(s);
-  y:= XY(55);
+  y:= XY(50);
   can.TextOut(mxt-tsz.cx div 2, y, s);
-  //Interval
-  s:= 'Interval: ' + IntToStr(interval) + 'min';
+  //Batteriespannung
+  s:= 'Batterie: ' + FloatToStrF(dw_ubatt, ffFixed, 7,2) + 'V';  //°C
+  tsz:= can.TextExtent(s);
   y:= XY(85);
   can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Interval
+  s:= 'Interval: ' + IntToStr(dw_interval) + 'min';
+  y:= XY(90);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
 
- // writeln('Dauer1: ', IntToStr( GetTickCount() - time));
+ // writeln('Dauer1: ', IntToStr( GetTickCount64() - time));
 
   spng.Clear;
   img.SaveToStream(spng, writer);
-  //writeln('Dauer2: ', IntToStr( GetTickCount() - time));
+  //writeln('Dauer2: ', IntToStr( GetTickCount64() - time));
   can.Free;
   img.Free;
   writer.Free;

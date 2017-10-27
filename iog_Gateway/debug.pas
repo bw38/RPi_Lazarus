@@ -8,8 +8,11 @@ uses
   Classes, SysUtils, typedef;
 
 procedure writeDS2cmdline(pl: tPayLoad);
+procedure startTiming();
+procedure stopTiming();
 
 implementation
+
 
 procedure writeDS2cmdline(pl: tPayLoad);
 begin
@@ -28,6 +31,18 @@ begin
   writeln('Level:   ' + InttoStr(pl.Level)+#13);
   writeln('Status:  ' + InttoStr(pl.StatusLevel)+#13);
   writeln('********************'+#13);
+end;
+
+var timing: int64;
+
+procedure startTiming();
+begin
+  timing:= GetTickCount64();
+end;
+
+procedure stopTiming();
+begin
+  writeln('Timing: ', GetTickCount64() - timing);
 end;
 
 end.

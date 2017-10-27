@@ -5,9 +5,8 @@ unit sensor;
 interface
 
 uses
-  Classes, SysUtils, typedef, debug, fptimer, math, Graphics, Types,
-  FPImage, FPCanvas, FPImgCanv, FPWritePNG,
-  ftfont;
+  Classes, SysUtils, typedef, debug, fptimer, math, Graphics, Types, drawweb,
+  FPImage, FPCanvas, FPImgCanv, FPWritePNG, ftfont, lNet;
 
 type
 
@@ -34,8 +33,8 @@ type
 tSensor = class
 private
   data: tList;
-  levelconv: tList;	//f. Levelsensor, Convertierung Zählwert => Level in Prozent
-
+  levelconv: tList;		//f. Levelsensor, Convertierung Zählwert => Level in Prozent
+  dwdg: TDrawWidget;	//zur graphischen Darstellung
   FSensorName: string;
 
   function convLevel(fcnt: word): word;
@@ -47,6 +46,7 @@ private
   function GetMaxTemperature(): real;
   function GetInterval(): word;
   function GetTimeStamp: TDateTime;
+  function GetUBatt: real;
 
 public
   uid: word;			//Informationen des Sensors
@@ -61,7 +61,7 @@ public
   //Variablen f. intelligenten Kanalwechsel
   TimeStamp : tDateTime; 				//Zeitpunkt des letzten Telegramms
 
-  spng: TMemoryStream;	//png zur Darstellung im Web-Interface
+
 
   constructor create(uid_, sensors_: word; ver_, rev_: byte);
   destructor destroy;  override;
@@ -81,9 +81,9 @@ public
   property Interval: word read GetInterval;
 
   property sensortime: TDateTime read GetTimestamp;
+	property ubatt: real read GetUBatt;
 
-
-  procedure DrawWidget(hSize: integer); //Web-Widget zeichnen und im Memorystream spichern
+  procedure DrawWidget(hSize: integer; aSocket: TLSocket); //Web-Widget zeichnen
 end;
 
 //Callback type
@@ -123,7 +123,7 @@ implementation
 constructor tSensor.create(uid_, sensors_: word; ver_, rev_: byte);
 var fn: string;
     sl, slh: tStringList;
-    i, j: integer;
+    i: integer;
     lcl: tLevelConvLine;
 
 begin
@@ -136,8 +136,6 @@ begin
   DeepSleep:= 300 * SEK;    //default 5Min
   TempRes:= 9;
   FSensorName:= 'Sensor XXX';
-
-  spng:= TMemoryStream.Create;
 
   levelconv:= tList.Create;
   if sensors and 2 = 2 then begin	//Levelsensor
@@ -176,7 +174,6 @@ end;
 destructor tSensor.destroy;
 var i: integer;
 begin
-  spng.Free;
   for i:= 0 to levelconv.Count -1 do tLevelConvLine(levelconv[i]).Free;
   levelconv.Free;
   for i:= 0 to data.Count-1 do get(i).Free;
@@ -210,17 +207,19 @@ end;
 function tSensor.convLevel(fcnt: word): word;
 var m, i, diff: word;
     line: tLevelConvLine;
+    res: integer;
 begin
-	result:= -1;
+	res:= -1;
 	diff:= $FFFF;
   for i:= 0 to levelconv.Count-1 do begin
   	line:= tLevelConvLine(levelconv[i]);
     m:= abs(fcnt - line.fcnt);
     if m < diff then begin
     	diff:= m;
-      result:= line.pLevel;
+      res:= line.pLevel;
     end;
   end;
+  result:= res;
 end;
 
 function tSensor.GetLevel(): integer;
@@ -234,7 +233,6 @@ begin
   x:= -1;	//max Zählwert
 	for i:= 0 to data.Count-1 do x:= max(get(i).Level, x);
   result:= convLevel(x);
-  writeln('Min: ', result);
 end;
 
 function tSensor.GetMaxLevel(): integer;
@@ -243,7 +241,6 @@ begin
   x:= maxint; //min Zählwert
 	for i:= 0 to data.Count-1 do x:= min(get(i).Level, x);
   result:= convLevel(x);
-  writeln('Max: ', result);
 end;
 
 function tSensor.GetTemperature(): real;
@@ -273,11 +270,29 @@ begin
   result:= round(DeepSleep / (60 * Sek));
 end;
 
-//Web-Widget zeichnen und im Memorystream speichern
-procedure tSensor.DrawWidget(hSize: integer);
-{$I widget_level.inc} //Auslagerung in separate Dateien
+function tSensor.GetUBatt(): real;
 begin
-  draw_widget_level(hSize);
+  result:= getLast.Batterie / 1000;
+end;
+
+//Web-Widget zeichnen und im Memorystream speichern
+procedure tSensor.DrawWidget(hSize: integer; aSocket: TLSocket);
+begin
+  dwdg:= TDrawWidget.Create(gtLevelMeter);
+  dwdg.hSize:= hSize;
+  dwdg.aSocket:= aSocket;
+  //Messerte übergeben
+  dwdg.dw_level:= level;
+  dwdg.dw_minlevel:= minLevel;
+  dwdg.dw_maxLevel:= maxLevel;
+  dwdg.dw_temp:= temp;
+  dwdg.dw_minTemp:= minTemp;
+  dwdg.dw_maxTemp:= maxTemp;
+  dwdg.dw_idTxt:= idTxt;
+  dwdg.dw_interval:= interval;
+  dwdg.dw_sensortime:= sensortime;
+  dwdg.dw_ubatt:= ubatt;
+  dwdg.Resume;
 end;
 
 function tSensor.GetTimeStamp: TDateTime;
