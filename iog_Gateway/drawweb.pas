@@ -38,6 +38,10 @@ public
   dw_interval: word;
   dw_sensortime: TDateTime;
   dw_ubatt: real;
+  dw_UpTime: integer;
+  dw_strVersion: string;
+  dw_cntTxShot: integer;   	//aktuelle Sendeversuche
+  dw_errTxShot: integer;  //nicht beantwortete Sendeversuche seit 0:00Uhr
 
 	constructor Create(mt: enumGaugeType);
 	destructor Destroy; override;

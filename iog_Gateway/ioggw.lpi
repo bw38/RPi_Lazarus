@@ -64,10 +64,11 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="$(HOME)/Lazarus/ioggw"/>
+      <Filename Value="$(HOME)/.iog/ioggw"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <Libraries Value="/usr/lib/gcc/arm-linux-gnueabihf/6/"/>
       <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils;../mylib/lnet/lazaruspackage/lib/arm-linux"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
