@@ -182,11 +182,23 @@ const
 
 var dsgn: TDesign;
 
+type
+confSensor = record
+  name: string;
+  interval: integer;
+  tempres: integer;
+end;
+
+type
+enumPaths = (pathConfig, pathData, pathLog, pathIog);
+
+
 procedure config_write_channel(ch: byte);   //Datafile
 function  config_read_channel(): byte;
+function  config_read_sensor(uid: word): confSensor;
 
 function getDSFileName(date: tDateTime): string;
-function getFilePath(): string;
+function getFilePath(toPath: enumPaths): string;
 procedure writeLogMessage(log: string);
 
 function crc16(s: AnsiString):word;
@@ -199,7 +211,7 @@ implementation
 procedure config_write_channel(ch: byte);
 var fData: tDatafile;
 begin
-	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
+	fData:= tDataFile.create(getFilePath(pathConfig) + 'iog_sensors.conf');
   fData.WriteInteger('Wifi', 'Channel',ch);
   fData.Free;
 end;
@@ -208,10 +220,25 @@ end;
 function  config_read_channel(): byte;
 var fData: tDatafile;
 begin
-	fData:= tDataFile.create(getFilePath() + 'iog_dat.log');
+	fData:= tDataFile.create(getFilePath(pathConfig) + 'iog_sensors.conf');
   result:= fData.ReadInteger('Wifi', 'Channel', 7); //Default Channel 7
   fData.Free;
 end;
+
+//Configurationsdaten des Sensors - nur lesen
+function  config_read_sensor(uid: word): confSensor;
+var fData: tDatafile;
+    s: string;
+begin
+  s:= IntToStr(uid);
+	fData:= tDataFile.create(getFilePath(pathConfig) + 'iog_sensors.conf');
+  result.name := fData.ReadString(s, 'name', 'unknow');
+  result.interval := fData.ReadInteger(s, 'interval', 1800); //x Sek
+  result.tempres := fData.ReadInteger(s, 'tempres', 9);
+  fData.Free;
+end;
+
+//------------------------------------------------------------------------------
 
 //Name der Datensatzdatei YYYY-mm-dd.iog
 function getDSFileName(date: tDateTime): string;
@@ -220,9 +247,14 @@ begin
 end;
 
 //Datensätze im HomeDir
-function getFilePath(): string;
+function getFilePath(toPath: enumPaths): string;
 begin
-	result:= GetUserDir() + '.iog/';
+  case toPath of
+  	pathData: 	result:= GetUserDir() + '.iog/data/';
+    pathConfig: result:= GetUserDir() + '.iog/config/';
+    pathLog:		result:= GetUserDir() + '.iog/log/';
+    pathIog:		result:= GetUserDir() + '.iog/'
+  end;
 end;
 
 //Log-Datei schreiben
@@ -230,7 +262,7 @@ procedure writeLogMessage(log: string);
 var lf: textfile;	//Logfile
 		fn: string;
 begin
-  fn:= getFilePath() + 'iog_msg.log';
+  fn:= getFilePath(pathLog) + 'iog_msg.log';
  	AssignFile(lf, fn);
 	try
 		if FileExists(fn) then append(lf)	else rewrite(lf);

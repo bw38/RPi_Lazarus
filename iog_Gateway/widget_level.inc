@@ -7,7 +7,7 @@ procedure draw_widget_level(hSize: integer);
 const ratio = 1.5; //width = hSize * ratio
 
 var writer : TFPCustomImageWriter;
-    w, h, ang, szval, sz, x, y, mxt, h2, w2: integer;
+    w, h, ang, szval, sz, x, y, mxt, myt, h2, w2: integer;
     mcf, pA, pE, pT, pQ: TPoint;
     rsA1, rsA2, rsE, rsT, rsN, a: real;
     rval: TRect;
@@ -174,14 +174,38 @@ begin
   tsz:= can.TextExtent(s);
   y:= XY(50);
   can.TextOut(mxt-tsz.cx div 2, y, s);
+
+  can.Font.Size := XY(3);
+  myt:= 65;	//Y-Pos der Textzeilen
+  //Version
+  s:= 'Version: ' + dw_strVersion;
+  tsz:= can.TextExtent(s);
+  y:= XY(myt+0);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
   //Batteriespannung
   s:= 'Batterie: ' + FloatToStrF(dw_ubatt, ffFixed, 7,2) + 'V';  //°C
   tsz:= can.TextExtent(s);
-  y:= XY(85);
+  y:= XY(myt+5);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //UpTime
+  s:= 'UpTime: ' + IntToStr(dw_UpTime) + 'Sek';
+  tsz:= can.TextExtent(s);
+  y:= XY(myt+10);
   can.TextOut(mxt-tsz.cx div 2, y, s);
   //Interval
   s:= 'Interval: ' + IntToStr(dw_interval) + 'min';
-  y:= XY(90);
+  tsz:= can.TextExtent(s);
+  y:= XY(myt+15);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Sendeversuche
+  s:= 'TxShot: ' + IntToStr(dw_cntTxShot);
+  tsz:= can.TextExtent(s);
+  y:= XY(myt+20);
+  can.TextOut(mxt-tsz.cx div 2, y, s);
+  //Sendefehler am Tag
+  s:= 'TxFehler: ' + IntToStr(dw_errTxShot);
+  tsz:= can.TextExtent(s);
+  y:= XY(myt+25);
   can.TextOut(mxt-tsz.cx div 2, y, s);
 
  // writeln('Dauer1: ', IntToStr( GetTickCount64() - time));

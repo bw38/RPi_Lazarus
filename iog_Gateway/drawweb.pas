@@ -38,6 +38,10 @@ public
   dw_interval: word;
   dw_sensortime: TDateTime;
   dw_ubatt: real;
+  dw_UpTime: integer;
+  dw_strVersion: string;
+  dw_cntTxShot: integer;   	//aktuelle Sendeversuche
+  dw_errTxShot: integer;  //nicht beantwortete Sendeversuche seit 0:00Uhr
 
 	constructor Create(mt: enumGaugeType);
 	destructor Destroy; override;
@@ -69,10 +73,11 @@ end;
 procedure TDrawWidget.Execute;
 var sz: integer;
 {$I widget_level.inc} //Auslagerung in separate Dateien
+{$I widget_temp.inc}
 begin
   case metertype of
     gtLevelMeter: draw_widget_level(hSize);
-
+    gtThermoMeter: draw_widget_temp(hSize);
   end;
 
 	sz:= spng.Size;

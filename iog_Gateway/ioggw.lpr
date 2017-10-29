@@ -244,12 +244,12 @@ end;
 
 procedure tIoGGateway.OnSrvError(const msg: string; aSocket: TLSocket);
 begin
-  Writeln(msg);  // if error occured, write it explicitly
+  Writeln(msg, ' - ', aSocket.PeerAddress);  // if error occured, write it explicitly
 end;
 
 procedure tIoGGateway.OnSrvDisconnect(aSocket: TLSocket);
 begin
-  Writeln('Lost connection'); // write info if connection was lost
+  Writeln('Lost connection', aSocket.PeerAddress); // write info if connection was lost
 end;
 
 procedure tIoGGateway.OnSrvAccept(aSocket: TLSocket);
@@ -357,6 +357,12 @@ var df: tDatafile;
   	fn: string;
 begin
   inherited Create(TheOwner);
+
+  if not DirectoryExists(GetFilePath(pathIog)) then CreateDir(GetFilePath(pathIog));
+  if not DirectoryExists(GetFilePath(pathConfig)) then CreateDir(GetFilePath(pathConfig));
+  if not DirectoryExists(GetFilePath(pathData)) then CreateDir(GetFilePath(pathData));
+  if not DirectoryExists(GetFilePath(pathLog)) then CreateDir(GetFilePath(pathLog));
+
   StopOnException:= True;
   OpenRS232();
   lSensors:= tSensorList.create(); //Datenhandling
@@ -371,7 +377,7 @@ begin
 
   dsgn:= dsgn_Dark;
   //alternative Farbtabelle laden
-  fn:= getFilePath() + 'config/' +  'iog_colors.ini';
+  fn:= getFilePath(pathConfig) + 'iog_colors.ini';
   if fileexists(fn) then begin
 		df:= tDataFile.create(fn);
 	  dsgn.clockFace := 		df.ReadInteger('colors', 'clockFace', dsgn.clockFace);

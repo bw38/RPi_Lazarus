@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, typedef, debug, fptimer, math, Graphics, Types, drawweb,
-  FPImage, FPCanvas, FPImgCanv, FPWritePNG, ftfont, lNet;
+  FPImage, FPCanvas, FPWritePNG, ftfont, lNet;
 
 type
 
@@ -47,6 +47,10 @@ private
   function GetInterval(): word;
   function GetTimeStamp: TDateTime;
   function GetUBatt: real;
+  function GetOnTime(): integer;
+  function GetVersion(): string;
+  function GetCntTxShot(): integer;
+  function GetErrTxShot(): integer;
 
 public
   uid: word;			//Informationen des Sensors
@@ -63,7 +67,7 @@ public
 
 
 
-  constructor create(uid_, sensors_: word; ver_, rev_: byte);
+  constructor create(uid_, sensors_: word);
   destructor destroy;  override;
   function get(ix: integer): tDataSet;
   function getlast: tDataset;
@@ -82,6 +86,11 @@ public
 
   property sensortime: TDateTime read GetTimestamp;
 	property ubatt: real read GetUBatt;
+
+  property UpTime: integer read GetOnTime;        //Wachzeitzeit in sek
+  property strVersion: string read GetVersion;    //Version.Revision
+  property cntTxShot: integer read GetCntTxShot;  // aktuelle Sendeversuche
+  property errTxShot: integer read GetErrTxShot;	//Summe Fehlversuche
 
   procedure DrawWidget(hSize: integer; aSocket: TLSocket); //Web-Widget zeichnen
 end;
@@ -120,28 +129,30 @@ implementation
 
 //------------------------------------------------------------------------------
 
-constructor tSensor.create(uid_, sensors_: word; ver_, rev_: byte);
+constructor tSensor.create(uid_, sensors_: word);
 var fn: string;
     sl, slh: tStringList;
     i: integer;
     lcl: tLevelConvLine;
+    conf: confSensor;
 
 begin
   inherited create;
   data:= tList.Create;
   uid:= uid_;
   sensors:= sensors_;
-  version:= ver_;
-  revision:= rev_;
-  DeepSleep:= 300 * SEK;    //default 5Min
-  TempRes:= 9;
-  FSensorName:= 'Sensor XXX';
+
+  //Sensor-Configuration aus Datei lesen
+  conf:= config_read_sensor(uid);
+  DeepSleep:= conf.interval * SEK;
+  TempRes:= conf.tempres;
+  FSensorName:= conf.name;
 
   levelconv:= tList.Create;
   if sensors and 2 = 2 then begin	//Levelsensor
   	//Umrechnungstabelle laden  /home/pi/.iog/sensors/xxxxx.level
     //Tabellen werden je Levelsensor manuell erstellt
-    fn:= getFilePath() + 'sensors/' + IntToStr(uid)+'.level';
+    fn:= getFilePath(pathConfig) +  IntToStr(uid)+'.level';
     if FileExists(fn) then begin
     	sl:= tStringList.Create;
       slh:= tStringList.Create;
@@ -151,19 +162,27 @@ begin
       	for i:= 0 to sl.Count-1 do begin
       		slh.Clear;
 	        slh.DelimitedText := sl[i];
-  	      if slh.Count = 3 then begin //jede Zeile genau 3 numerische werte
-           	lcl:= tLevelConvLine.Create;
-             lcl.fcnt   := StrToInt(slh[0]);
-             lcl.pLevel := StrToInt(slh[1]);
-             lcl.hLevel := StrToInt(slh[2]);
-             levelconv.Add(lcl);
+          if slh.Count = 0 then begin end //Leerzeile, keine Aktion
+          else if pos('#', TrimLeft(slh[0])) = 1 then begin end //Kommentarzeile
+          else if slh.Count = 3 then begin //jede Zeile genau 3 numerische werte
+            try
+           		lcl:= tLevelConvLine.Create;
+            	lcl.fcnt   := StrToInt(slh[0]);
+            	lcl.pLevel := StrToInt(slh[1]);
+            	lcl.hLevel := StrToInt(slh[2]);
+            	levelconv.Add(lcl);
+            except
+             	lcl.free;
+              WriteLogMessage('Fehler in ' + fn);
+            end;
           end else begin	//Formaltfehler in derr Konvertierungdtabelle
-    	     	WriteLogMessage('Fehler' + fn);
+    	     	WriteLogMessage('Fehler in ' + fn);
       	   	break;
           end;
       	end;
        except
        	levelconv.Clear;	//im Fehlerfall Liste löschen
+        WriteLogMessage('Fehler in ' + fn);
        end;
       slh.Free;
       sl.Free;
@@ -205,12 +224,13 @@ end;
 
 //Füllstand in Prozent, Umrechnung mit Convertierungsliste des sensors
 function tSensor.convLevel(fcnt: word): word;
-var m, i, diff: word;
+var m, diff: word;
     line: tLevelConvLine;
-    res: integer;
+    i, res: integer;
 begin
 	res:= -1;
 	diff:= $FFFF;
+  i:= levelconv.Count;
   for i:= 0 to levelconv.Count-1 do begin
   	line:= tLevelConvLine(levelconv[i]);
     m:= abs(fcnt - line.fcnt);
@@ -275,6 +295,33 @@ begin
   result:= getLast.Batterie / 1000;
 end;
 
+function tSensor.GetOnTime(): integer;
+begin
+  result:= round(getLast.RunTime / 1000);
+end;
+
+function tSensor.GetVersion(): string;
+begin
+	result:= IntToStr(version) + '.' + IntToStr(revision);
+end;
+
+function tSensor.GetCntTxShot(): integer;
+begin
+  result:= getLast.cntTxShot;
+end;
+
+function tSensor.GetTimeStamp: TDateTime;
+begin
+  result:= getLast.TimeStamp;
+end;
+
+function tSensor.GetErrTxShot(): integer;
+var i: integer;
+begin
+  result:= 0;
+  for i:= 0 to data.Count-1 do result:= result + (get(i).cntTxShot -1);
+end;
+
 //Web-Widget zeichnen und im Memorystream speichern
 procedure tSensor.DrawWidget(hSize: integer; aSocket: TLSocket);
 begin
@@ -292,13 +339,13 @@ begin
   dwdg.dw_interval:= interval;
   dwdg.dw_sensortime:= sensortime;
   dwdg.dw_ubatt:= ubatt;
-  dwdg.Resume;
+  dwdg.dw_UpTime := UpTime;
+  dwdg.dw_strVersion := strVersion;
+  dwdg.dw_cntTxShot := cntTxShot;
+  dwdg.dw_errTxShot := errTxShot;
+  dwdg.Start;
 end;
 
-function tSensor.GetTimeStamp: TDateTime;
-begin
-  result:= getLast.TimeStamp;
-end;
 
 //-----------------------------------------------------------------------------
 
@@ -362,7 +409,7 @@ var sen: tSensor;
 begin
   ix:= indexOf(pl.uid);
 	if ix < 0 then begin //neuer Sensor
-  	sen:= tSensor.create(pl.uid, pl.sensors, pl.version, pl.revision);
+  	sen:= tSensor.create(pl.uid, pl.sensors);
     sen.Channel := MasterChannel;
     ix:= sensors.Add(sen);
   end;
@@ -380,6 +427,8 @@ begin
   ds.Level:= pl.Level;
   ds.StatusLevel:= pl.StatusLevel;
 
+  get(ix).version:= pl.version;
+  get(ix).revision:= pl.revision;
   get(ix).addDataSet(ds);	//Datensatz zur Liste des Sensors hinzufügen
   result:= ix;  					//Index des Sensors
 
@@ -393,7 +442,7 @@ var stream: tFileStream;
     sdir, fn: string;
 begin
   result:= false;
-  sdir:= getFilePath();
+  sdir:= getFilePath(pathData);
   fn:= getDSFileName(now);  //File mit aktuellem Datum
   try
   	if not DirectoryExists(sdir)
@@ -417,9 +466,10 @@ var sdir, fn: string;
 begin
   result:= false;
   stream:= nil;
-	sdir:= getFilePath();
+	sdir:= getFilePath(pathData);
   fn:= getDSFileName(date);
-  //pl initialisieren !!!!!!!!!!!!!!!!!!!!!
+
+  FillChar(pl, sizeof(pl), #0); //pl initialisieren
   try
   	if FileExists(sdir+fn) then begin
     	stream := TFileStream.Create(sdir + fn, fmOpenRead);

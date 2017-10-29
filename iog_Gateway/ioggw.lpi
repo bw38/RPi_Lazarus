@@ -48,15 +48,15 @@
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="wiget_level.inc"/>
+        <Filename Value="widget_level.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="widget_level.inc"/>
+        <Filename Value="drawweb.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="drawweb.pas"/>
+        <Filename Value="widget_temp.inc"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
     </Units>
@@ -64,10 +64,11 @@
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="$(HOME)/Lazarus/ioggw"/>
+      <Filename Value="$(HOME)/.iog/ioggw"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <Libraries Value="/usr/lib/gcc/arm-linux-gnueabihf/6/"/>
       <OtherUnitFiles Value="../mylib/piserial;../mylib/wiringpi;../mylib/DataFile;../../Development/FreePascal/lazarus/components/lazutils;../mylib/lnet/lazaruspackage/lib/arm-linux"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
