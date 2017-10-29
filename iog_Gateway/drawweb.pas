@@ -76,7 +76,7 @@ var sz: integer;
 {$I widget_temp.inc}
 begin
   case metertype of
-    gtLevelMeter: draw_widget_level(hSize);
+ 		gtLevelMeter: draw_widget_level(hSize);
     gtThermoMeter: draw_widget_temp(hSize);
   end;
 

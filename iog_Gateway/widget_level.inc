@@ -7,7 +7,7 @@ procedure draw_widget_level(hSize: integer);
 const ratio = 1.5; //width = hSize * ratio
 
 var writer : TFPCustomImageWriter;
-    w, h, ang, szval, sz, x, y, mxt, myt, h2, w2: integer;
+    w, h, ang, szval, szn, x, y, mxt, myt, h2, w2: integer;
     mcf, pA, pE, pT, pQ: TPoint;
     rsA1, rsA2, rsE, rsT, rsN, a: real;
     rval: TRect;
@@ -143,8 +143,8 @@ begin
   pE.y:= mcf.y + round(rsN*cos(a));
   can.Line(mcf, pE);
   can.Brush.FPColor := TColorToFPColor(dsgn.needle);
-  sz:= XY(8) div 2;
-  can.Ellipse(mcf.x - sz, mcf.y - sz, mcf.x + sz, mcf.y + sz  );
+  szn:= XY(8) div 2;
+  can.Ellipse(mcf.x - szn, mcf.y - szn, mcf.x + szn, mcf.y + szn  );
 
   //Texte
   mxt:= XY(115); //Centerline der Textausgaben

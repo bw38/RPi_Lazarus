@@ -47,9 +47,15 @@ begin
   can.Brush.FPColor := TColorToFPColor(dsgn.outBack);
   can.Rectangle(XY(4), XY(4), w-XY(4), h-XY(4));
 
+  can.Pen.FPColor := TColorToFPColor(dsgn.scaleLine);
+	can.Pen.Width := XY(1.2);
+  can.Font.Size := XY(3.2);
+	can.Font.Name:= 'DejaVuSans';
+  can.Font.FPColor := TColorToFPColor(dsgn.scaleText);
+
 
   //Texte
-  mxt:= XY(115); //Centerline der Textausgaben
+  mxt:= XY(37); //Centerline der Textausgaben
   can.Brush.FPColor := TColorToFPColor(dsgn.outBack);
   can.font.FPColor := TColorToFPColor(dsgn.txt);
 

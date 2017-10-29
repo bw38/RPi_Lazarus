@@ -29,6 +29,15 @@ tLevelconvline = class
 	fcnt, pLevel, hLevel: word;
 end;
 
+//Sensortypen Bitmaske - max 16 Typen (s. iog_sensors.h)
+const
+SENSOR__TEMPERATURE =	$0001;
+SENSOR__LEVEL				= $0002;
+SENSOR__HUMIDITY		= $0004;
+
+type
+enumSensors = (sensorTemp, sensorLevel, sensorHumidity, sensorNone);
+
 type
 tSensor = class
 private
@@ -36,6 +45,8 @@ private
   levelconv: tList;		//f. Levelsensor, Convertierung Zählwert => Level in Prozent
   dwdg: TDrawWidget;	//zur graphischen Darstellung
   FSensorName: string;
+
+  function GetMainSensor(): enumSensors;
 
   function convLevel(fcnt: word): word;
   function GetLevel(): integer;
@@ -72,6 +83,8 @@ public
   function get(ix: integer): tDataSet;
   function getlast: tDataset;
   function addDataSet(ds: tDataSet): integer;
+
+  property MainSensor: enumSensors read GetMainSensor;
 
   property Level: integer read GetLevel;
   property minLevel: integer read GetMinLevel;
@@ -222,6 +235,18 @@ begin
   result:= data.Add(ds);
 end;
 
+function tSensor.GetMainSensor(): enumSensors;
+begin
+  if sensors and SENSOR__HUMIDITY = SENSOR__HUMIDITY then result:= sensorHumidity
+  else
+  	if sensors and SENSOR__LEVEL = SENSOR__LEVEL then result:= sensorLevel
+  else
+  	if sensors and SENSOR__TEMPERATURE = SENSOR__TEMPERATURE then result:= sensorTemp
+  else
+    result:= sensorNone;
+end;
+
+
 //Füllstand in Prozent, Umrechnung mit Convertierungsliste des sensors
 function tSensor.convLevel(fcnt: word): word;
 var m, diff: word;
@@ -325,25 +350,51 @@ end;
 //Web-Widget zeichnen und im Memorystream speichern
 procedure tSensor.DrawWidget(hSize: integer; aSocket: TLSocket);
 begin
-  dwdg:= TDrawWidget.Create(gtLevelMeter);
-  dwdg.hSize:= hSize;
-  dwdg.aSocket:= aSocket;
-  //Messerte übergeben
-  dwdg.dw_level:= level;
-  dwdg.dw_minlevel:= minLevel;
-  dwdg.dw_maxLevel:= maxLevel;
-  dwdg.dw_temp:= temp;
-  dwdg.dw_minTemp:= minTemp;
-  dwdg.dw_maxTemp:= maxTemp;
-  dwdg.dw_idTxt:= idTxt;
-  dwdg.dw_interval:= interval;
-  dwdg.dw_sensortime:= sensortime;
-  dwdg.dw_ubatt:= ubatt;
-  dwdg.dw_UpTime := UpTime;
-  dwdg.dw_strVersion := strVersion;
-  dwdg.dw_cntTxShot := cntTxShot;
-  dwdg.dw_errTxShot := errTxShot;
-  dwdg.Start;
+  case MainSensor of
+  	sensorLevel: begin
+  		dwdg:= TDrawWidget.Create(gtLevelMeter);
+  		dwdg.hSize:= hSize;
+  		dwdg.aSocket:= aSocket;
+  		//Messerte übergeben
+  		dwdg.dw_level:= level;
+  		dwdg.dw_minlevel:= minLevel;
+  		dwdg.dw_maxLevel:= maxLevel;
+  		dwdg.dw_temp:= temp;
+  		dwdg.dw_minTemp:= minTemp;
+  		dwdg.dw_maxTemp:= maxTemp;
+  		dwdg.dw_idTxt:= idTxt;
+  		dwdg.dw_interval:= interval;
+  		dwdg.dw_sensortime:= sensortime;
+  		dwdg.dw_ubatt:= ubatt;
+  		dwdg.dw_UpTime := UpTime;
+  		dwdg.dw_strVersion := strVersion;
+  		dwdg.dw_cntTxShot := cntTxShot;
+  		dwdg.dw_errTxShot := errTxShot;
+  		dwdg.Start;
+    end;
+  	sensorTemp: begin
+  		dwdg:= TDrawWidget.Create(gtThermoMeter);
+  		dwdg.hSize:= hSize;
+  		dwdg.aSocket:= aSocket;
+  		//Messerte übergeben
+      dwdg.dw_temp:= temp;
+  		dwdg.dw_minTemp:= minTemp;
+  		dwdg.dw_maxTemp:= maxTemp;
+  		dwdg.dw_idTxt:= idTxt;
+  		dwdg.dw_interval:= interval;
+  		dwdg.dw_sensortime:= sensortime;
+  		dwdg.dw_ubatt:= ubatt;
+  		dwdg.dw_UpTime := UpTime;
+  		dwdg.dw_strVersion := strVersion;
+  		dwdg.dw_cntTxShot := cntTxShot;
+  		dwdg.dw_errTxShot := errTxShot;
+  		dwdg.Start;
+    end;
+
+    sensorHumidity: begin
+
+    end;
+  end;
 end;
 
 

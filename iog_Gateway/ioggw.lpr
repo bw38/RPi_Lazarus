@@ -244,7 +244,7 @@ end;
 
 procedure tIoGGateway.OnSrvError(const msg: string; aSocket: TLSocket);
 begin
-  Writeln(msg, ' - ', aSocket.PeerAddress);  // if error occured, write it explicitly
+  Writeln(msg);  // if error occured, write it explicitly
 end;
 
 procedure tIoGGateway.OnSrvDisconnect(aSocket: TLSocket);
