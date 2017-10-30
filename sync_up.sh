@@ -9,4 +9,5 @@ rsync -e "ssh -p ${sshport}" -rtlv ${srcpath} ${destdev}:${destpath}
 
 sleep 2
 
+# zur Sicherheit nach jedem Aufruf die Berechtigung aufheben
 chmod -x $0
